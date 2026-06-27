@@ -50,9 +50,9 @@ export default function Fornecedores() {
   return (
     <div>
       <PageHeader
-        titulo="Fornecedores"
+        titulo="Compras"
         descricao={`${fornecedores.length} cadastrados`}
-        acao={!somenteLeitura && <Button onClick={() => setModal({ ...vazio })}><Plus size={16} /> Novo fornecedor</Button>}
+        acao={!somenteLeitura && <Button onClick={() => setModal({ ...vazio })}><Plus size={16} /> Novo cadastro</Button>}
       />
       <Card>
         <div className="border-b border-line p-4">
@@ -61,12 +61,12 @@ export default function Fornecedores() {
             <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar fornecedor..." className="w-full rounded-lg border border-line bg-card2 py-2 pl-9 pr-3 text-sm focus:border-accent focus:bg-card focus:outline-none focus:ring-2 focus:ring-accent/25" />
           </div>
         </div>
-        <DataTable colunas={colunas} dados={filtrados} vazio={<EmptyState icone={Truck} titulo="Nenhum fornecedor encontrado" descricao="Cadastre fornecedores para controlar compras e prazos." />} />
+        <DataTable colunas={colunas} dados={filtrados} vazio={<EmptyState icone={Truck} titulo="Nenhum registro encontrado" descricao="Cadastre seus fornecedores de compras para controlar prazos e pagamentos." />} />
       </Card>
 
       <Modal
         aberto={!!modal}
-        titulo={modal?.id ? 'Editar fornecedor' : 'Novo fornecedor'}
+        titulo={modal?.id ? 'Editar cadastro' : 'Novo cadastro'}
         onFechar={() => setModal(null)}
         rodape={<><Button variant="secondary" onClick={() => setModal(null)}>Cancelar</Button><Button onClick={salvar}>Salvar</Button></>}
       >
