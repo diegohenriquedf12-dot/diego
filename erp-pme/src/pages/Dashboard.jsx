@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import {
   Wallet, TrendingUp, Package, Users, DollarSign, ShoppingCart,
   ArrowUpRight, ArrowDownRight, AlertTriangle, Boxes, ShoppingBag,
@@ -33,6 +34,35 @@ export default function Dashboard({ irPara }) {
   const mesAnterior = historico[historico.length - 2] || mesAtual;
   const lucro = mesAtual.receita - mesAtual.despesa;
   const variacao = (a, b) => (b ? +(((a - b) / b) * 100).toFixed(1) : 0);
+
+  // Gráfico Receita x Despesa com seletor de período (24h / 7d / 30d).
+  // A série é montada a partir das contas (receber/pagar) por dia de vencimento.
+  const [periodo, setPeriodo] = useState('7d');
+  const diasPorPeriodo = { '24h': 1, '7d': 7, '30d': 30 };
+  const serieFinanceira = useMemo(() => {
+    const dias = diasPorPeriodo[periodo] || 7;
+    const qtdPontos = Math.max(dias, 2); // garante uma linha mesmo no 24h
+    const base = new Date();
+    base.setHours(0, 0, 0, 0);
+    const pontos = [];
+    for (let i = qtdPontos - 1; i >= 0; i--) {
+      const d = new Date(base);
+      d.setDate(base.getDate() - i);
+      const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const receita = contas
+        .filter((c) => c.tipo === 'receber' && c.vencimento === iso)
+        .reduce((s, c) => s + (Number(c.valor) || 0), 0);
+      const despesa = contas
+        .filter((c) => c.tipo === 'pagar' && c.vencimento === iso)
+        .reduce((s, c) => s + (Number(c.valor) || 0), 0);
+      pontos.push({
+        rotulo: `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`,
+        receita,
+        despesa,
+      });
+    }
+    return pontos;
+  }, [contas, periodo]);
 
   const categorias = Object.values(
     produtos.reduce((acc, p) => {
@@ -89,10 +119,29 @@ export default function Dashboard({ irPara }) {
       {/* Gráficos principais */}
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="p-5 lg:col-span-2">
-          <h3 className="text-sm font-semibold text-ink">Receita x Despesa</h3>
-          <p className="mb-4 text-xs text-muted">Últimos 6 meses</p>
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-semibold text-ink">Receita x Despesa</h3>
+              <p className="text-xs text-muted">
+                {periodo === '24h' ? 'Últimas 24 horas' : periodo === '7d' ? 'Últimos 7 dias' : 'Últimos 30 dias'}
+              </p>
+            </div>
+            <div className="flex gap-1 rounded-lg bg-card2 p-1">
+              {['24h', '7d', '30d'].map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPeriodo(p)}
+                  className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                    periodo === p ? 'bg-accent text-accent-ink shadow' : 'text-muted hover:text-ink'
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
           <ResponsiveContainer width="100%" height={260}>
-            <AreaChart data={historico} margin={{ left: -18, right: 8 }}>
+            <AreaChart data={serieFinanceira} margin={{ left: -18, right: 8 }}>
               <defs>
                 <linearGradient id="gRec" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#FF7A00" stopOpacity={0.35} />
@@ -104,7 +153,7 @@ export default function Dashboard({ irPara }) {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#71717a" strokeOpacity={0.2} vertical={false} />
-              <XAxis dataKey="mes" tick={{ fontSize: 12, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
+              <XAxis dataKey="rotulo" tick={{ fontSize: 12, fill: '#9ca3af' }} axisLine={false} tickLine={false} minTickGap={16} />
               <YAxis tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v / 1000}k`} />
               <Tooltip {...tooltipBox} formatter={(v) => moeda(v)} />
               <Area type="monotone" dataKey="receita" stroke="#FF7A00" strokeWidth={2.5} fill="url(#gRec)" name="Receita" animationDuration={900} />
