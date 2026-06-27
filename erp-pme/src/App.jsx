@@ -44,7 +44,7 @@ export default function App() {
 
   return (
     <ERPProvider>
-      <div className="min-h-screen bg-slate-100 text-slate-900">
+      <div className="min-h-screen bg-black text-slate-900">
         <Sidebar
           ativo={pagina}
           onNavegar={navegar}
