@@ -108,19 +108,28 @@ export function ERPProvider({ children }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Importação única dos PDFs de venda como contas a pagar (roda uma vez).
+  // Migração única (roda uma vez por versão da flag):
+  //  1) categoria "Fornecedores" -> "Compras";
+  //  2) relança os valores dos PDFs de venda (sobrescreve por id).
   useEffect(() => {
     try {
       if (localStorage.getItem(IMPORT_CONTAS_PDF_FLAG)) return;
     } catch {
       return;
     }
-    const existentes = new Set(contas.map((c) => c.id));
-    const novos = contasImportadasPdf.filter((c) => !existentes.has(c.id));
-    if (novos.length) {
-      setContas((lista) => [...novos.filter((n) => !lista.some((l) => l.id === n.id)), ...lista]);
-      novos.forEach((c) => sincronizar('contas', c));
+    const porId = new Map(contas.map((c) => [c.id, c]));
+    for (const [id, c] of porId) {
+      if (c.categoria === 'Fornecedores') porId.set(id, { ...c, categoria: 'Compras' });
     }
+    contasImportadasPdf.forEach((c) => porId.set(c.id, { ...c }));
+    setContas(Array.from(porId.values()));
+
+    // sincroniza com o Supabase as contas alteradas/relançadas
+    const recategorizadas = contas
+      .filter((c) => c.categoria === 'Fornecedores')
+      .map((c) => ({ ...c, categoria: 'Compras' }));
+    [...contasImportadasPdf, ...recategorizadas].forEach((c) => sincronizar('contas', c));
+
     try {
       localStorage.setItem(IMPORT_CONTAS_PDF_FLAG, '1');
     } catch {
