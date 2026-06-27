@@ -11,6 +11,9 @@ import {
   metasSeed,
   eventosSeed,
   LIMPEZA_FLAG,
+  comprasSeed,
+  contasCompras,
+  COMPRAS_IMPORT_FLAG,
 } from '../data/seed';
 import { novoId, totalVenda } from '../utils/format';
 import { supabase, supabaseAtivo } from '../lib/supabase';
@@ -52,6 +55,7 @@ export function ERPProvider({ children }) {
   const [funcionarios, setFuncionarios] = useColecaoPersistida('funcionarios', funcionariosSeed);
   const [metas, setMetas] = useColecaoPersistida('metas', metasSeed);
   const [eventos, setEventos] = useColecaoPersistida('eventos', eventosSeed);
+  const [compras, setCompras] = useColecaoPersistida('compras', comprasSeed);
 
   // ---- Sincronização com o Supabase (no-op quando não configurado) ----
   // Esquema das tabelas: id text (PK), dados jsonb, atualizado_em timestamptz.
@@ -86,6 +90,7 @@ export function ERPProvider({ children }) {
       funcionarios: setFuncionarios,
       metas: setMetas,
       eventos: setEventos,
+      compras: setCompras,
     };
     (async () => {
       for (const [tabela, set] of Object.entries(setters)) {
@@ -132,6 +137,36 @@ export function ERPProvider({ children }) {
 
     try {
       localStorage.setItem(LIMPEZA_FLAG, '1');
+    } catch {
+      /* ignora */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Importa as compras (Distribuidora Siqueira Bikes) e suas contas a pagar
+  // uma vez, sobrescrevendo por id. Roda uma vez por versão da flag.
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(COMPRAS_IMPORT_FLAG)) return;
+    } catch {
+      return;
+    }
+    setCompras((lista) => {
+      const porId = new Map(lista.map((c) => [c.id, c]));
+      comprasSeed.forEach((c) => porId.set(c.id, { ...c }));
+      return Array.from(porId.values());
+    });
+    comprasSeed.forEach((c) => sincronizar('compras', c));
+
+    setContas((lista) => {
+      const porId = new Map(lista.map((c) => [c.id, c]));
+      contasCompras.forEach((c) => porId.set(c.id, { ...c }));
+      return Array.from(porId.values());
+    });
+    contasCompras.forEach((c) => sincronizar('contas', c));
+
+    try {
+      localStorage.setItem(COMPRAS_IMPORT_FLAG, '1');
     } catch {
       /* ignora */
     }
@@ -201,6 +236,42 @@ export function ERPProvider({ children }) {
     setContas((lista) => lista.map((c) => (c.id === id ? { ...c, status: 'pago' } : c)));
     const conta = contas.find((c) => c.id === id);
     if (conta) sincronizar('contas', { ...conta, status: 'pago' });
+    // se a conta veio de uma compra, reflete o status na compra
+    setCompras((lista) => lista.map((c) => (c.id === id ? { ...c, status: 'pago' } : c)));
+  };
+
+  // ---- Compras: registro próprio + conta a pagar vinculada (mesmo id) ----
+  const salvarCompra = (compra) => {
+    if (somenteLeitura) return null;
+    const id = compra.id || novoId('cmp');
+    const completa = { ...compra, id, valor: Number(compra.valor) || 0 };
+    setCompras((lista) =>
+      compra.id ? lista.map((c) => (c.id === id ? completa : c)) : [completa, ...lista]
+    );
+    sincronizar('compras', completa);
+
+    const conta = {
+      id,
+      tipo: 'pagar',
+      descricao: `Compra ${completa.numero || id} — ${completa.fornecedor || 'Fornecedor'}`,
+      valor: completa.valor,
+      vencimento: completa.data,
+      status: completa.status === 'pago' ? 'pago' : 'pendente',
+      categoria: 'Compras',
+    };
+    setContas((lista) =>
+      lista.some((c) => c.id === id) ? lista.map((c) => (c.id === id ? conta : c)) : [conta, ...lista]
+    );
+    sincronizar('contas', conta);
+    return completa;
+  };
+
+  const removerCompra = (id) => {
+    if (somenteLeitura) return;
+    setCompras((lista) => lista.filter((c) => c.id !== id));
+    removerRemoto('compras', id);
+    setContas((lista) => lista.filter((c) => c.id !== id));
+    removerRemoto('contas', id);
   };
 
   // ---- Indicadores derivados ----
@@ -287,11 +358,14 @@ export function ERPProvider({ children }) {
     funcionarios,
     metas,
     eventos,
+    compras,
     indicadores,
     metricasMes,
     atualDaMeta,
     somenteLeitura,
     backendAtivo: supabaseAtivo,
+    salvarCompra,
+    removerCompra,
     salvarCliente: upsert(setClientes, 'c', 'clientes'),
     removerCliente: remover(setClientes, 'clientes'),
     salvarFornecedor: upsert(setFornecedores, 'f', 'fornecedores'),

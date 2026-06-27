@@ -7,6 +7,7 @@ import Header from './components/Header';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Clientes from './pages/Clientes';
+import Compras from './pages/Compras';
 import Estoque from './pages/Estoque';
 import Vendas from './pages/Vendas';
 import Financeiro from './pages/Financeiro';
@@ -57,6 +58,7 @@ export default function App() {
     vendas: <Vendas />,
     estoque: <Estoque />,
     clientes: <Clientes />,
+    compras: <Compras />,
     financeiro: <Financeiro />,
     fluxo: <FluxoCaixa />,
     funcionarios: <Funcionarios irPara={navegar} />,

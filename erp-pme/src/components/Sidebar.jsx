@@ -2,6 +2,7 @@ import {
   LayoutDashboard,
   Users,
   Package,
+  ShoppingBag,
   ShoppingCart,
   ClipboardList,
   Wallet,
@@ -28,6 +29,7 @@ export const grupos = [
       { id: 'vendas', nome: 'Vendas', icone: ShoppingCart },
       { id: 'estoque', nome: 'Produtos', icone: Package },
       { id: 'clientes', nome: 'Clientes', icone: Users },
+      { id: 'compras', nome: 'Compras', icone: ShoppingBag },
     ],
   },
   {
