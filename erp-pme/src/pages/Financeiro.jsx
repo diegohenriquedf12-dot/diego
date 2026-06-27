@@ -96,7 +96,7 @@ export default function Financeiro() {
             <div className="grid grid-cols-2 gap-4">
               <Campo label="Valor (R$)"><Input type="number" step="0.01" min="0" value={modal.valor} onChange={(e) => setModal({ ...modal, valor: e.target.value })} /></Campo>
               <Campo label="Vencimento">
-                <input type="date" value={modal.vencimento} onChange={(e) => setModal({ ...modal, vencimento: e.target.value })} className="w-full rounded-lg border border-line px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
+                <input type="date" value={modal.vencimento} onChange={(e) => setModal({ ...modal, vencimento: e.target.value })} className="w-full rounded-lg border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25" />
               </Campo>
             </div>
             <div className="grid grid-cols-2 gap-4">

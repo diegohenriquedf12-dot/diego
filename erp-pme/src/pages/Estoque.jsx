@@ -74,7 +74,7 @@ export default function Estoque() {
         <div className="flex flex-col gap-3 border-b border-line p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative max-w-sm flex-1">
             <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-            <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar produto ou SKU..." className="w-full rounded-lg border border-line bg-card2 py-2 pl-9 pr-3 text-sm focus:border-emerald-500 focus:bg-card focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
+            <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar produto ou SKU..." className="w-full rounded-lg border border-line bg-card2 py-2 pl-9 pr-3 text-sm focus:border-accent focus:bg-card focus:outline-none focus:ring-2 focus:ring-accent/25" />
           </div>
           <div className="flex gap-1 rounded-lg bg-card2 p-1 text-sm">
             {[['todos', 'Todos'], ['baixo', 'Estoque baixo']].map(([v, l]) => (

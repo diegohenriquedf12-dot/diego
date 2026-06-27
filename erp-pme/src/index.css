@@ -5,6 +5,7 @@
 /* ---- Tokens de tema (RGB separado por espaço p/ suportar opacidade) ---- */
 :root,
 .light {
+  color-scheme: light;
   --canvas: 247 247 247;       /* #F7F7F7 */
   --card: 255 255 255;         /* #FFFFFF */
   --card2: 241 241 241;        /* #F1F1F1 */
@@ -17,6 +18,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --canvas: 15 15 15;          /* #0F0F0F */
   --card: 26 26 26;            /* #1A1A1A */
   --card2: 35 35 35;           /* #232323 */
@@ -35,6 +37,27 @@ body {
   background: rgb(var(--canvas));
   color: rgb(var(--ink));
   transition: background-color .3s ease, color .3s ease;
+}
+
+/* Rede de segurança: todo campo de entrada segue o tema, mesmo sem classes
+   utilitárias de cor (evita texto invisível ao digitar no tema escuro). */
+@layer base {
+  input,
+  textarea,
+  select {
+    color: rgb(var(--ink));
+    background-color: rgb(var(--card2));
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: rgb(var(--muted));
+    opacity: 1;
+  }
+  /* opções de <select> legíveis nos dois temas */
+  select option {
+    color: rgb(var(--ink));
+    background-color: rgb(var(--card));
+  }
 }
 
 @layer components {
