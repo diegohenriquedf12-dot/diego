@@ -59,10 +59,10 @@ export default function DespesasFixas() {
     <div>
       <PageHeader
         titulo="Despesas fixas"
-        descricao="Custos recorrentes do mês (aluguel, salários, contas...)"
+        descricao="Lançadas automaticamente todo mês no Financeiro. Use o botão para forçar o lançamento agora."
         acao={!somenteLeitura && (
           <div className="flex gap-2">
-            <Button variant="secondary" onClick={lancar}><CalendarPlus size={16} /> Lançar no mês</Button>
+            <Button variant="secondary" onClick={lancar}><CalendarPlus size={16} /> Lançar agora</Button>
             <Button onClick={() => setModal(vazia())}><Plus size={16} /> Nova despesa fixa</Button>
           </div>
         )}
