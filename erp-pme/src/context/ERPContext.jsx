@@ -214,6 +214,28 @@ export function ERPProvider({ children }) {
     };
   }, [contas, produtos, clientes, vendas, pedidos, funcionarios]);
 
+  // ---- Métricas do mês corrente (para metas automáticas) ----
+  // entradas = contas a receber; saídas = contas a pagar; lucro = entradas − saídas.
+  // (Vendas já lançam contas a receber, então entram na "receita".)
+  const metricasMes = useMemo(() => {
+    const mesAtual = new Date().toISOString().slice(0, 7); // AAAA-MM
+    const noMes = (iso) => typeof iso === 'string' && iso.slice(0, 7) === mesAtual;
+    const entradas = contas
+      .filter((c) => c.tipo === 'receber' && noMes(c.vencimento))
+      .reduce((s, c) => s + (Number(c.valor) || 0), 0);
+    const saidas = contas
+      .filter((c) => c.tipo === 'pagar' && noMes(c.vencimento))
+      .reduce((s, c) => s + (Number(c.valor) || 0), 0);
+    const vendasMes = vendas.filter((v) => v.status !== 'cancelado' && noMes(v.data)).length;
+    return { receita: entradas, despesas: saidas, lucro: entradas - saidas, vendas: vendasMes };
+  }, [contas, vendas]);
+
+  // "atual" efetivo de uma meta: automático (via fonte) ou o valor manual.
+  const atualDaMeta = (m) =>
+    m && m.fonte && m.fonte !== 'manual' && metricasMes[m.fonte] != null
+      ? metricasMes[m.fonte]
+      : Number(m?.atual) || 0;
+
   const value = {
     clientes,
     fornecedores,
@@ -226,6 +248,8 @@ export function ERPProvider({ children }) {
     metas,
     eventos,
     indicadores,
+    metricasMes,
+    atualDaMeta,
     somenteLeitura,
     backendAtivo: supabaseAtivo,
     salvarCliente: upsert(setClientes, 'c', 'clientes'),
