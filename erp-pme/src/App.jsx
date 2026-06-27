@@ -19,7 +19,7 @@ import Metas from './pages/Metas';
 import Agenda from './pages/Agenda';
 
 export default function App() {
-  const { autenticado, somenteLeitura } = useAuth();
+  const { autenticado, somenteLeitura, pronto } = useAuth();
   const [pagina, setPagina] = useState('dashboard');
   const [menuAberto, setMenuAberto] = useState(false);
   // Tema: 'dark' ou 'light' (preferência salva no navegador)
@@ -33,6 +33,11 @@ export default function App() {
   }, [tema]);
 
   const alternarTema = () => setTema((t) => (t === 'dark' ? 'light' : 'dark'));
+
+  // Aguarda restaurar a sessão (Supabase) antes de decidir
+  if (!pronto) {
+    return <div className="grid min-h-screen place-items-center bg-canvas text-muted">Carregando…</div>;
+  }
 
   // Sem login → tela de acesso
   if (!autenticado) {

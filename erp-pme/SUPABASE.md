@@ -47,9 +47,26 @@ No repositório: **Settings → Secrets and variables → Actions**:
 O workflow de deploy injeta esses valores no build automaticamente. Faça um
 novo deploy (push ou *Run workflow*) para o site publicado passar a usar o banco.
 
-## Segurança
+## 6. Login por conta (Supabase Auth)
 
-O `schema.sql` libera acesso à chave **anon** (sem login) para um MVP rápido.
-Para produção, habilite **Authentication** no Supabase e troque as policies por
-regras baseadas em usuário (ex.: `using (auth.uid() = dono)`). Posso implementar
-o login quando você quiser.
+O app aceita **login real de administrador** por e-mail e senha (além da senha
+rápida de reserva e do acesso de convidado, que é somente leitura).
+
+1. **Authentication → Users → Add user**: informe e-mail e senha do administrador
+   e marque **Auto Confirm User** (assim não precisa confirmar e-mail).
+2. (Se preferir cadastro aberto) em **Authentication → Providers → Email**, deixe
+   *Confirm email* desligado para testes.
+3. No site, escolha **Administrador geral**, opção **e-mail e senha**, e entre.
+
+## 7. Segurança forte (recomendada)
+
+Por padrão (`schema.sql`) a chave **anon** pode ler e gravar — bom para começar.
+Depois de criar o usuário administrador e confirmar que consegue entrar:
+
+- Rode [`supabase/seguranca.sql`](./supabase/seguranca.sql) no SQL Editor.
+
+A partir daí: **convidado/anon = somente leitura** e **somente o administrador
+logado grava** — agora com bloqueio no servidor (RLS), não só na interface.
+
+> Importante: aplique o `seguranca.sql` apenas **depois** de conseguir entrar com
+> a conta de administrador, senão ninguém conseguirá gravar.
