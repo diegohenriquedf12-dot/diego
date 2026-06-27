@@ -29,7 +29,7 @@ export const eventosSeed = [];
 
 // Importação única: contas a pagar geradas a partir dos PDFs de venda
 // (Distribuidora Siqueira Bikes). Aplicadas uma vez via flag de importação.
-export const IMPORT_CONTAS_PDF_FLAG = 'erp:import:vendas-pdf-v1';
+export const IMPORT_CONTAS_PDF_FLAG = 'erp:import:vendas-pdf-v2';
 export const contasImportadasPdf = [
   { id: 'cp34371', tipo: 'pagar', descricao: 'Pedido 34371 — Siqueira Bikes', valor: 58.49, vencimento: '2026-06-17', status: 'pendente', categoria: 'Compras' },
   { id: 'cp34387', tipo: 'pagar', descricao: 'Pedido 34387 — Siqueira Bikes', valor: 318.70, vencimento: '2026-06-18', status: 'pendente', categoria: 'Compras' },
