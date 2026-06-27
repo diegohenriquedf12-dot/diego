@@ -1,4 +1,4 @@
--- Esquema do back-end (Supabase / PostgreSQL) para o Gestor PME.
+-- Esquema do back-end (Supabase / PostgreSQL) para o Gestor Siqueira.
 -- Cada coleção do app vira uma tabela com o mesmo nome, no formato documento:
 --   id           text  (chave primária — mesmo id gerado no app)
 --   dados        jsonb (o registro completo)

@@ -1,6 +1,6 @@
 # Back-end Supabase — guia de configuração
 
-O Gestor PME usa o **Supabase** (PostgreSQL gerenciado) como back-end. Enquanto
+O Gestor Siqueira usa o **Supabase** (PostgreSQL gerenciado) como back-end. Enquanto
 as credenciais não são configuradas, o app funciona normalmente usando o
 `localStorage` do navegador. Ao conectar o Supabase, os dados passam a ser
 salvos na nuvem e ficam disponíveis em qualquer dispositivo/navegador.
