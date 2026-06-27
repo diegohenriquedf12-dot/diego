@@ -39,18 +39,18 @@ export default function Estoque() {
 
   const colunas = [
     { chave: 'nome', titulo: 'Produto', render: (p) => (
-      <div><p className="font-medium text-slate-900">{p.nome}</p><p className="text-xs text-slate-500">{p.sku} · {p.categoria}</p></div>
+      <div><p className="font-medium text-ink">{p.nome}</p><p className="text-xs text-muted">{p.sku} · {p.categoria}</p></div>
     ) },
     { chave: 'preco', titulo: 'Preço venda', alinhar: 'right', render: (p) => moeda(p.preco) },
-    { chave: 'custo', titulo: 'Custo', alinhar: 'right', render: (p) => <span className="text-slate-500">{moeda(p.custo)}</span> },
+    { chave: 'custo', titulo: 'Custo', alinhar: 'right', render: (p) => <span className="text-muted">{moeda(p.custo)}</span> },
     { chave: 'quantidade', titulo: 'Qtd.', alinhar: 'right', render: (p) => (
-      <span className="font-semibold text-slate-900">{p.quantidade} <span className="text-xs font-normal text-slate-400">{p.unidade}</span></span>
+      <span className="font-semibold text-ink">{p.quantidade} <span className="text-xs font-normal text-muted">{p.unidade}</span></span>
     ) },
     { chave: 'nivel', titulo: 'Situação', render: (p) => <Badge status={nivelEstoque(p)} /> },
     { chave: 'acoes', titulo: '', alinhar: 'right', render: (p) => (
       <div className="flex justify-end gap-1">
-        <button onClick={() => setModal(p)} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"><Pencil size={15} /></button>
-        <button onClick={() => removerProduto(p.id)} className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600"><Trash2 size={15} /></button>
+        <button onClick={() => setModal(p)} className="rounded-lg p-1.5 text-muted hover:bg-card2 hover:text-ink"><Pencil size={15} /></button>
+        <button onClick={() => removerProduto(p.id)} className="rounded-lg p-1.5 text-muted hover:bg-rose-50 hover:text-rose-600"><Trash2 size={15} /></button>
       </div>
     ) },
   ];
@@ -71,14 +71,14 @@ export default function Estoque() {
       )}
 
       <Card>
-        <div className="flex flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 border-b border-line p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative max-w-sm flex-1">
-            <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar produto ou SKU..." className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
+            <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+            <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar produto ou SKU..." className="w-full rounded-lg border border-line bg-card2 py-2 pl-9 pr-3 text-sm focus:border-emerald-500 focus:bg-card focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
           </div>
-          <div className="flex gap-1 rounded-lg bg-slate-100 p-1 text-sm">
+          <div className="flex gap-1 rounded-lg bg-card2 p-1 text-sm">
             {[['todos', 'Todos'], ['baixo', 'Estoque baixo']].map(([v, l]) => (
-              <button key={v} onClick={() => setFiltro(v)} className={`rounded-md px-3 py-1.5 font-medium transition-colors ${filtro === v ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>{l}</button>
+              <button key={v} onClick={() => setFiltro(v)} className={`rounded-md px-3 py-1.5 font-medium transition-colors ${filtro === v ? 'bg-card text-ink shadow-sm' : 'text-muted hover:text-ink'}`}>{l}</button>
             ))}
           </div>
         </div>

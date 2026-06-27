@@ -55,27 +55,27 @@ export default function Sidebar({ ativo, onNavegar, aberto, onFechar }) {
   return (
     <>
       {aberto && (
-        <div className="fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-sm lg:hidden" onClick={onFechar} />
+        <div className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm lg:hidden" onClick={onFechar} />
       )}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-brand-900 transition-transform duration-200 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-line bg-card transition-transform duration-200 lg:translate-x-0 ${
           aberto ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Logo / marca */}
         <div className="flex h-16 items-center justify-between gap-2 px-5">
           <div className="flex items-center gap-2.5">
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-lg shadow-brand-500/30">
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-accent text-accent-ink shadow-lg">
               <Sparkles size={18} />
             </span>
             <div className="leading-tight">
-              <p className="text-sm font-bold text-white">Gestor PME</p>
-              <p className="text-[11px] text-slate-400">Sistema empresarial</p>
+              <p className="text-sm font-bold text-ink">Gestor PME</p>
+              <p className="text-[11px] text-muted">Sistema empresarial</p>
             </div>
           </div>
           <button
             onClick={onFechar}
-            className="rounded-lg p-1.5 text-slate-400 hover:bg-white/10 lg:hidden"
+            className="rounded-lg p-1.5 text-muted hover:bg-card2 lg:hidden"
             aria-label="Fechar menu"
           >
             <X size={18} />
@@ -85,7 +85,7 @@ export default function Sidebar({ ativo, onNavegar, aberto, onFechar }) {
         <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4">
           {grupos.map((g) => (
             <div key={g.titulo}>
-              <p className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+              <p className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted">
                 {g.titulo}
               </p>
               <div className="space-y-0.5">
@@ -98,8 +98,8 @@ export default function Sidebar({ ativo, onNavegar, aberto, onFechar }) {
                       onClick={() => onNavegar(m.id)}
                       className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
                         selecionado
-                          ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/30'
-                          : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                          ? 'bg-accent text-accent-ink shadow-lg'
+                          : 'text-muted hover:bg-card2 hover:text-ink'
                       }`}
                     >
                       <Icone size={18} className={selecionado ? '' : 'transition-transform group-hover:scale-110'} />
@@ -112,14 +112,14 @@ export default function Sidebar({ ativo, onNavegar, aberto, onFechar }) {
           ))}
         </nav>
 
-        <div className="border-t border-white/10 p-4">
+        <div className="border-t border-line p-4">
           <div className="flex items-center gap-3">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-sm font-semibold text-white">
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-accent text-sm font-semibold text-accent-ink">
               JM
             </span>
             <div className="leading-tight">
-              <p className="text-sm font-medium text-white">João Martins</p>
-              <p className="text-[11px] text-slate-400">Administrador</p>
+              <p className="text-sm font-medium text-ink">João Martins</p>
+              <p className="text-[11px] text-muted">Administrador</p>
             </div>
           </div>
         </div>

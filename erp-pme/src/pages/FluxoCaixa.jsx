@@ -52,12 +52,12 @@ export default function FluxoCaixa() {
         {m.tipo === 'entrada'
           ? <ArrowUpCircle size={16} className="text-emerald-500" />
           : <ArrowDownCircle size={16} className="text-rose-500" />}
-        <span className="font-medium text-slate-900">{m.descricao}</span>
+        <span className="font-medium text-ink">{m.descricao}</span>
       </span>
     ) },
-    { chave: 'entrada', titulo: 'Entrada', alinhar: 'right', render: (m) => m.tipo === 'entrada' ? <span className="font-medium text-emerald-600">{moeda(m.valor)}</span> : <span className="text-slate-300">—</span> },
-    { chave: 'saida', titulo: 'Saída', alinhar: 'right', render: (m) => m.tipo === 'saida' ? <span className="font-medium text-rose-600">{moeda(m.valor)}</span> : <span className="text-slate-300">—</span> },
-    { chave: 'saldo', titulo: 'Saldo', alinhar: 'right', render: (m) => <span className={`font-semibold ${m.saldo >= 0 ? 'text-slate-900' : 'text-rose-600'}`}>{moeda(m.saldo)}</span> },
+    { chave: 'entrada', titulo: 'Entrada', alinhar: 'right', render: (m) => m.tipo === 'entrada' ? <span className="font-medium text-emerald-600">{moeda(m.valor)}</span> : <span className="text-muted">—</span> },
+    { chave: 'saida', titulo: 'Saída', alinhar: 'right', render: (m) => m.tipo === 'saida' ? <span className="font-medium text-rose-600">{moeda(m.valor)}</span> : <span className="text-muted">—</span> },
+    { chave: 'saldo', titulo: 'Saldo', alinhar: 'right', render: (m) => <span className={`font-semibold ${m.saldo >= 0 ? 'text-ink' : 'text-rose-600'}`}>{moeda(m.saldo)}</span> },
   ];
 
   return (
@@ -66,22 +66,22 @@ export default function FluxoCaixa() {
 
       <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Card className="p-5">
-          <div className="flex items-center gap-2 text-emerald-600"><ArrowUpCircle size={18} /><span className="text-sm font-medium text-slate-500">Entradas</span></div>
-          <p className="mt-2 text-2xl font-semibold text-slate-900">{moeda(entradas)}</p>
+          <div className="flex items-center gap-2 text-emerald-600"><ArrowUpCircle size={18} /><span className="text-sm font-medium text-muted">Entradas</span></div>
+          <p className="mt-2 text-2xl font-semibold text-ink">{moeda(entradas)}</p>
         </Card>
         <Card className="p-5">
-          <div className="flex items-center gap-2 text-rose-600"><ArrowDownCircle size={18} /><span className="text-sm font-medium text-slate-500">Saídas</span></div>
-          <p className="mt-2 text-2xl font-semibold text-slate-900">{moeda(saidas)}</p>
+          <div className="flex items-center gap-2 text-rose-600"><ArrowDownCircle size={18} /><span className="text-sm font-medium text-muted">Saídas</span></div>
+          <p className="mt-2 text-2xl font-semibold text-ink">{moeda(saidas)}</p>
         </Card>
         <Card className="p-5">
-          <div className="flex items-center gap-2 text-slate-700"><TrendingUp size={18} /><span className="text-sm font-medium text-slate-500">Saldo atual</span></div>
+          <div className="flex items-center gap-2 text-ink"><TrendingUp size={18} /><span className="text-sm font-medium text-muted">Saldo atual</span></div>
           <p className={`mt-2 text-2xl font-semibold ${saldoAtual >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>{moeda(saldoAtual)}</p>
         </Card>
       </div>
 
       <Card className="mb-4 p-5">
-        <h3 className="text-sm font-semibold text-slate-900">Saldo mensal</h3>
-        <p className="mb-4 text-xs text-slate-500">Receita menos despesa por mês</p>
+        <h3 className="text-sm font-semibold text-ink">Saldo mensal</h3>
+        <p className="mb-4 text-xs text-muted">Receita menos despesa por mês</p>
         <ResponsiveContainer width="100%" height={240}>
           <ComposedChart data={grafico} margin={{ left: -12, right: 8 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
@@ -97,7 +97,7 @@ export default function FluxoCaixa() {
       </Card>
 
       <Card>
-        <div className="border-b border-slate-100 px-5 py-4"><h3 className="text-sm font-semibold text-slate-900">Extrato de movimentações</h3></div>
+        <div className="border-b border-line px-5 py-4"><h3 className="text-sm font-semibold text-ink">Extrato de movimentações</h3></div>
         <DataTable colunas={colunas} dados={movimentos} />
       </Card>
     </div>

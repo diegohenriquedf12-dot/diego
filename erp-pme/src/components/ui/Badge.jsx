@@ -1,24 +1,27 @@
-// Pílula de status reutilizável
+// Pílula de status reutilizável (tints translúcidos — funcionam em dark e light)
 const cores = {
-  ativo: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
-  inativo: 'bg-slate-100 text-slate-500 ring-slate-500/20',
-  pago: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
-  pendente: 'bg-amber-50 text-amber-700 ring-amber-600/20',
-  atrasado: 'bg-rose-50 text-rose-700 ring-rose-600/20',
-  cancelado: 'bg-slate-100 text-slate-500 ring-slate-500/20',
-  ok: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
-  baixo: 'bg-amber-50 text-amber-700 ring-amber-600/20',
-  esgotado: 'bg-rose-50 text-rose-700 ring-rose-600/20',
-  receber: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
-  pagar: 'bg-rose-50 text-rose-700 ring-rose-600/20',
-  // Pedidos
-  recebido: 'bg-slate-100 text-slate-600 ring-slate-500/20',
-  separacao: 'bg-amber-50 text-amber-700 ring-amber-600/20',
-  enviado: 'bg-brand-50 text-brand-700 ring-brand-600/20',
-  entregue: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
-  // Funcionários
-  afastado: 'bg-amber-50 text-amber-700 ring-amber-600/20',
-  estornado: 'bg-slate-100 text-slate-500 ring-slate-500/20',
+  // genéricos
+  ativo: 'bg-pos/15 text-pos',
+  inativo: 'bg-muted/15 text-muted',
+  pago: 'bg-pos/15 text-pos',
+  pendente: 'bg-warn/15 text-warn',
+  atrasado: 'bg-neg/15 text-neg',
+  cancelado: 'bg-muted/15 text-muted',
+  // estoque
+  ok: 'bg-pos/15 text-pos',
+  baixo: 'bg-warn/15 text-warn',
+  esgotado: 'bg-neg/15 text-neg',
+  // financeiro
+  receber: 'bg-pos/15 text-pos',
+  pagar: 'bg-neg/15 text-neg',
+  // pedidos
+  recebido: 'bg-muted/15 text-muted',
+  separacao: 'bg-warn/15 text-warn',
+  enviado: 'bg-info/15 text-info',
+  entregue: 'bg-pos/15 text-pos',
+  // funcionários
+  afastado: 'bg-warn/15 text-warn',
+  estornado: 'bg-muted/15 text-muted',
 };
 
 const rotulos = {
@@ -30,11 +33,11 @@ const rotulos = {
 };
 
 export default function Badge({ status, children }) {
-  const cls = cores[status] || 'bg-slate-100 text-slate-600 ring-slate-500/20';
+  const cls = cores[status] || 'bg-muted/15 text-muted';
   const texto = children || rotulos[status] || status;
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium capitalize ring-1 ring-inset ${cls}`}
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium capitalize ${cls}`}
     >
       {texto}
     </span>

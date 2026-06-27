@@ -21,7 +21,7 @@ const tooltipBox = {
     boxShadow: '0 4px 12px rgba(15,23,42,.08)',
   },
 };
-const paleta = ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#0ea5e9'];
+const paleta = ['#FF7A00', '#22C55E', '#3B82F6', '#EF4444', '#8B5CF6', '#FACC15'];
 
 export default function Dashboard({ irPara }) {
   const { indicadores, historico, vendas, produtos, clientes, contas, metas } = useERP();
@@ -59,10 +59,13 @@ export default function Dashboard({ irPara }) {
   return (
     <div>
       {/* Faixa de boas-vindas */}
-      <div className="mb-6 overflow-hidden rounded-2xl bg-gradient-to-r from-brand-900 via-brand-700 to-brand-500 p-6 text-white shadow-lift">
-        <p className="text-sm text-brand-100">Bem-vindo de volta, João 👋</p>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight">Dashboard Executivo</h1>
-        <p className="mt-1 text-sm text-brand-100">Visão geral consolidada — junho de 2026.</p>
+      <div className="relative mb-6 overflow-hidden rounded-2xl border border-line bg-card p-6 shadow-card">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-accent/15 via-transparent to-transparent" />
+        <div className="relative">
+          <p className="text-sm text-muted">Bem-vindo de volta, João 👋</p>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-ink">Dashboard Executivo</h1>
+          <p className="mt-1 text-sm text-muted">Visão geral consolidada — junho de 2026.</p>
+        </div>
       </div>
 
       {/* KPIs com contagem animada e cor por desempenho */}
@@ -83,33 +86,33 @@ export default function Dashboard({ irPara }) {
       {/* Gráficos principais */}
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="p-5 lg:col-span-2">
-          <h3 className="text-sm font-semibold text-slate-900">Receita x Despesa</h3>
-          <p className="mb-4 text-xs text-slate-500">Últimos 6 meses</p>
+          <h3 className="text-sm font-semibold text-ink">Receita x Despesa</h3>
+          <p className="mb-4 text-xs text-muted">Últimos 6 meses</p>
           <ResponsiveContainer width="100%" height={260}>
             <AreaChart data={historico} margin={{ left: -18, right: 8 }}>
               <defs>
                 <linearGradient id="gRec" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#FF7A00" stopOpacity={0.35} />
+                  <stop offset="95%" stopColor="#FF7A00" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="gDes" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#f43f5e" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#EF4444" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#EF4444" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-              <XAxis dataKey="mes" tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v / 1000}k`} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#71717a" strokeOpacity={0.2} vertical={false} />
+              <XAxis dataKey="mes" tick={{ fontSize: 12, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v / 1000}k`} />
               <Tooltip {...tooltipBox} formatter={(v) => moeda(v)} />
-              <Area type="monotone" dataKey="receita" stroke="#2563eb" strokeWidth={2.5} fill="url(#gRec)" name="Receita" animationDuration={900} />
-              <Area type="monotone" dataKey="despesa" stroke="#f43f5e" strokeWidth={2.5} fill="url(#gDes)" name="Despesa" animationDuration={1100} />
+              <Area type="monotone" dataKey="receita" stroke="#FF7A00" strokeWidth={2.5} fill="url(#gRec)" name="Receita" animationDuration={900} />
+              <Area type="monotone" dataKey="despesa" stroke="#EF4444" strokeWidth={2.5} fill="url(#gDes)" name="Despesa" animationDuration={1100} />
             </AreaChart>
           </ResponsiveContainer>
         </Card>
 
         <Card className="p-5">
-          <h3 className="text-sm font-semibold text-slate-900">Despesas por categoria</h3>
-          <p className="mb-2 text-xs text-slate-500">Distribuição atual</p>
+          <h3 className="text-sm font-semibold text-ink">Despesas por categoria</h3>
+          <p className="mb-2 text-xs text-muted">Distribuição atual</p>
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
               <Pie data={despesasCat} dataKey="valor" nameKey="nome" cx="50%" cy="50%" innerRadius={48} outerRadius={80} paddingAngle={3} animationDuration={900}>
@@ -121,11 +124,11 @@ export default function Dashboard({ irPara }) {
           <ul className="mt-2 space-y-1">
             {despesasCat.map((d, i) => (
               <li key={d.nome} className="flex items-center justify-between text-xs">
-                <span className="flex items-center gap-2 text-slate-600">
+                <span className="flex items-center gap-2 text-muted">
                   <span className="h-2.5 w-2.5 rounded-full" style={{ background: paleta[i % paleta.length] }} />
                   {d.nome}
                 </span>
-                <span className="font-medium text-slate-900">{moeda(d.valor)}</span>
+                <span className="font-medium text-ink">{moeda(d.valor)}</span>
               </li>
             ))}
           </ul>
@@ -136,15 +139,15 @@ export default function Dashboard({ irPara }) {
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="p-5">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-900">Metas do mês</h3>
-            <button onClick={() => irPara('metas')} className="text-xs font-medium text-brand-600 hover:text-brand-700">Ver metas</button>
+            <h3 className="text-sm font-semibold text-ink">Metas do mês</h3>
+            <button onClick={() => irPara('metas')} className="text-xs font-medium text-accent hover:text-accent">Ver metas</button>
           </div>
           <div className="space-y-4">
             {metasResumo.map((m) => (
               <div key={m.id}>
                 <div className="mb-1 flex items-center justify-between text-xs">
-                  <span className="font-medium text-slate-600">{m.titulo}</span>
-                  <span className={m.pct >= 100 ? 'font-semibold text-emerald-600' : 'text-slate-500'}>{m.pct}%</span>
+                  <span className="font-medium text-muted">{m.titulo}</span>
+                  <span className={m.pct >= 100 ? 'font-semibold text-emerald-600' : 'text-muted'}>{m.pct}%</span>
                 </div>
                 <ProgressBar valor={m.pct} tom={corPorMeta(m.pct)} />
               </div>
@@ -153,8 +156,8 @@ export default function Dashboard({ irPara }) {
         </Card>
 
         <Card className="p-5 lg:col-span-2">
-          <h3 className="text-sm font-semibold text-slate-900">Estoque por categoria</h3>
-          <p className="mb-4 text-xs text-slate-500">Valor a custo</p>
+          <h3 className="text-sm font-semibold text-ink">Estoque por categoria</h3>
+          <p className="mb-4 text-xs text-muted">Valor a custo</p>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={categorias} layout="vertical" margin={{ left: 10, right: 10 }}>
               <XAxis type="number" hide />
@@ -171,22 +174,22 @@ export default function Dashboard({ irPara }) {
       {/* Listas */}
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-            <h3 className="text-sm font-semibold text-slate-900">Vendas recentes</h3>
-            <button onClick={() => irPara('vendas')} className="text-xs font-medium text-brand-600 hover:text-brand-700">Ver todas</button>
+          <div className="flex items-center justify-between border-b border-line px-5 py-4">
+            <h3 className="text-sm font-semibold text-ink">Vendas recentes</h3>
+            <button onClick={() => irPara('vendas')} className="text-xs font-medium text-accent hover:text-accent">Ver todas</button>
           </div>
-          <ul className="divide-y divide-slate-100">
+          <ul className="divide-y divide-line">
             {ultimasVendas.map((v) => {
               const cliente = clientes.find((c) => c.id === v.clienteId);
               return (
-                <li key={v.id} className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-slate-50/70">
+                <li key={v.id} className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-card2">
                   <span className="grid h-9 w-9 place-items-center rounded-lg bg-emerald-50 text-emerald-600"><ArrowUpRight size={16} /></span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-slate-900">{cliente?.nome || 'Cliente'}</p>
-                    <p className="text-xs text-slate-500">#{v.id.replace('v', '')} · {dataBR(v.data)}</p>
+                    <p className="truncate text-sm font-medium text-ink">{cliente?.nome || 'Cliente'}</p>
+                    <p className="text-xs text-muted">#{v.id.replace('v', '')} · {dataBR(v.data)}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-semibold text-slate-900">{moeda(totalVenda(v))}</p>
+                    <p className="text-sm font-semibold text-ink">{moeda(totalVenda(v))}</p>
                     <Badge status={v.status} />
                   </div>
                 </li>
@@ -196,29 +199,29 @@ export default function Dashboard({ irPara }) {
         </Card>
 
         <Card>
-          <div className="flex items-center gap-2 border-b border-slate-100 px-5 py-4">
-            <AlertTriangle size={16} className={alertas.length ? 'animate-pulse-alert text-amber-500' : 'text-slate-400'} />
-            <h3 className="text-sm font-semibold text-slate-900">Alertas de estoque</h3>
+          <div className="flex items-center gap-2 border-b border-line px-5 py-4">
+            <AlertTriangle size={16} className={alertas.length ? 'animate-pulse-alert text-amber-500' : 'text-muted'} />
+            <h3 className="text-sm font-semibold text-ink">Alertas de estoque</h3>
           </div>
           {alertas.length === 0 ? (
-            <p className="px-5 py-8 text-center text-sm text-slate-500">Nenhum produto abaixo do mínimo.</p>
+            <p className="px-5 py-8 text-center text-sm text-muted">Nenhum produto abaixo do mínimo.</p>
           ) : (
-            <ul className="divide-y divide-slate-100">
+            <ul className="divide-y divide-line">
               {alertas.map((p) => (
                 <li key={p.id} className="flex items-center justify-between px-5 py-3">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-slate-900">{p.nome}</p>
-                    <p className="text-xs text-slate-500">Mín. {p.estoqueMinimo} {p.unidade}</p>
+                    <p className="truncate text-sm font-medium text-ink">{p.nome}</p>
+                    <p className="text-xs text-muted">Mín. {p.estoqueMinimo} {p.unidade}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-slate-900">{p.quantidade}</span>
+                    <span className="text-sm font-semibold text-ink">{p.quantidade}</span>
                     <Badge status={nivelEstoque(p)} />
                   </div>
                 </li>
               ))}
             </ul>
           )}
-          <button onClick={() => irPara('estoque')} className="flex w-full items-center justify-center gap-1 border-t border-slate-100 px-5 py-3 text-xs font-medium text-brand-600 hover:bg-slate-50">
+          <button onClick={() => irPara('estoque')} className="flex w-full items-center justify-center gap-1 border-t border-line px-5 py-3 text-xs font-medium text-accent hover:bg-card2">
             Gerenciar estoque <ArrowDownRight size={13} />
           </button>
         </Card>

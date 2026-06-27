@@ -42,12 +42,12 @@ export default function Funcionarios({ irPara }) {
       titulo: 'Funcionário',
       render: (f) => (
         <div className="flex items-center gap-3">
-          <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-xs font-semibold text-white">
+          <span className="grid h-9 w-9 place-items-center rounded-full bg-accent text-xs font-semibold text-accent-ink">
             {f.nome.split(' ').map((n) => n[0]).slice(0, 2).join('')}
           </span>
           <div>
-            <p className="font-medium text-slate-900">{f.nome}</p>
-            <p className="text-xs text-slate-500">{f.email}</p>
+            <p className="font-medium text-ink">{f.nome}</p>
+            <p className="text-xs text-muted">{f.email}</p>
           </div>
         </div>
       ),
@@ -63,7 +63,7 @@ export default function Funcionarios({ irPara }) {
       alinhar: 'right',
       render: (f) => (
         <div className="flex justify-end gap-1">
-          <button onClick={() => { setForm(f); setModal(true); }} className="rounded-lg px-2 py-1 text-xs font-medium text-brand-600 hover:bg-brand-50">Editar</button>
+          <button onClick={() => { setForm(f); setModal(true); }} className="rounded-lg px-2 py-1 text-xs font-medium text-accent hover:bg-accent/10">Editar</button>
           <button onClick={() => removerFuncionario(f.id)} className="rounded-lg p-1.5 text-rose-500 hover:bg-rose-50" aria-label="Excluir"><Trash2 size={15} /></button>
         </div>
       ),
@@ -90,14 +90,14 @@ export default function Funcionarios({ irPara }) {
       </div>
 
       <Card>
-        <div className="border-b border-slate-100 p-4">
+        <div className="border-b border-line p-4">
           <div className="relative max-w-sm">
-            <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
             <input
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               placeholder="Buscar funcionário..."
-              className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+              className="w-full rounded-lg border border-line bg-card2 py-2 pl-9 pr-3 text-sm focus:border-accent focus:bg-card focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
         </div>

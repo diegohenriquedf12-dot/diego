@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Menu, Search, Bell, Clock, Moon, Sun } from 'lucide-react';
 
-export default function Header({ titulo, onAbrirMenu, fundo = 'black', onAlternarFundo }) {
+export default function Header({ titulo, onAbrirMenu, tema = 'dark', onAlternarTema }) {
   const [agora, setAgora] = useState(new Date());
 
   // Relógio em tempo real (data e hora automáticas)
@@ -14,51 +14,51 @@ export default function Header({ titulo, onAbrirMenu, fundo = 'black', onAlterna
   const hora = agora.toLocaleTimeString('pt-BR');
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-slate-200 bg-white/80 px-4 backdrop-blur-md sm:px-6">
+    <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-line bg-canvas/80 px-4 backdrop-blur-md sm:px-6">
       <button
         onClick={onAbrirMenu}
-        className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
+        className="rounded-lg p-2 text-muted hover:bg-card2 lg:hidden"
         aria-label="Abrir menu"
       >
         <Menu size={20} />
       </button>
 
-      <h2 className="text-sm font-semibold text-slate-900 lg:hidden">{titulo}</h2>
+      <h2 className="text-sm font-semibold text-ink lg:hidden">{titulo}</h2>
 
       <div className="relative ml-auto hidden max-w-xs flex-1 sm:block lg:ml-0">
-        <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+        <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
         <input
           type="search"
           placeholder="Buscar no sistema..."
-          className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm text-slate-700 placeholder-slate-400 transition-all focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+          className="w-full rounded-lg border border-line bg-card2 py-2 pl-9 pr-3 text-sm text-ink placeholder-muted transition-all focus:border-accent focus:bg-card focus:outline-none focus:ring-2 focus:ring-accent/25"
         />
       </div>
 
       {/* Relógio automático */}
-      <div className="ml-auto hidden items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 md:flex lg:ml-0">
-        <Clock size={14} className="text-brand-500" />
+      <div className="ml-auto hidden items-center gap-2 rounded-lg border border-line bg-card2 px-3 py-1.5 text-xs font-medium text-muted md:flex lg:ml-0">
+        <Clock size={14} className="text-accent" />
         <span className="capitalize">{data}</span>
-        <span className="tabular-nums text-slate-900">{hora}</span>
+        <span className="tabular-nums text-ink">{hora}</span>
       </div>
 
-      {/* Alterna o plano de fundo entre preto e branco */}
-      {onAlternarFundo && (
+      {/* Alterna entre tema escuro e claro */}
+      {onAlternarTema && (
         <button
-          onClick={onAlternarFundo}
-          className="flex items-center gap-2 rounded-lg border border-slate-200 px-2.5 py-2 text-slate-600 transition-colors hover:bg-slate-100"
-          title={fundo === 'black' ? 'Fundo branco' : 'Fundo preto'}
-          aria-label="Alternar plano de fundo"
+          onClick={onAlternarTema}
+          className="flex items-center gap-2 rounded-lg border border-line px-2.5 py-2 text-muted transition-colors hover:bg-card2 hover:text-ink"
+          title={tema === 'dark' ? 'Tema claro' : 'Tema escuro'}
+          aria-label="Alternar tema"
         >
-          {fundo === 'black' ? <Sun size={18} /> : <Moon size={18} />}
+          {tema === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           <span className="hidden text-xs font-medium sm:inline">
-            {fundo === 'black' ? 'Branco' : 'Preto'}
+            {tema === 'dark' ? 'Claro' : 'Escuro'}
           </span>
         </button>
       )}
 
-      <button className="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100">
+      <button className="relative rounded-lg p-2 text-muted hover:bg-card2">
         <Bell size={20} />
-        <span className="absolute right-1.5 top-1.5 h-2 w-2 animate-pulse-alert rounded-full bg-rose-500 ring-2 ring-white" />
+        <span className="absolute right-1.5 top-1.5 h-2 w-2 animate-pulse-alert rounded-full bg-neg ring-2 ring-canvas" />
       </button>
     </header>
   );

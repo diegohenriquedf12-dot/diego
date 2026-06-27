@@ -18,15 +18,17 @@ import Agenda from './pages/Agenda';
 export default function App() {
   const [pagina, setPagina] = useState('dashboard');
   const [menuAberto, setMenuAberto] = useState(false);
-  // Plano de fundo: 'black' ou 'white' (preferência salva no navegador)
-  const [fundo, setFundo] = useState(() => localStorage.getItem('fundo') || 'black');
+  // Tema: 'dark' ou 'light' (preferência salva no navegador)
+  const [tema, setTema] = useState(() => localStorage.getItem('tema') || 'dark');
 
   useEffect(() => {
-    localStorage.setItem('fundo', fundo);
-    document.body.style.background = fundo === 'black' ? '#000000' : '#ffffff';
-  }, [fundo]);
+    localStorage.setItem('tema', tema);
+    const raiz = document.documentElement;
+    raiz.classList.toggle('dark', tema === 'dark');
+    raiz.classList.toggle('light', tema === 'light');
+  }, [tema]);
 
-  const alternarFundo = () => setFundo((f) => (f === 'black' ? 'white' : 'black'));
+  const alternarTema = () => setTema((t) => (t === 'dark' ? 'light' : 'dark'));
 
   const navegar = (id) => {
     setPagina(id);
@@ -53,7 +55,7 @@ export default function App() {
 
   return (
     <ERPProvider>
-      <div className={`min-h-screen text-slate-900 ${fundo === 'black' ? 'bg-black' : 'bg-white'}`}>
+      <div className="min-h-screen bg-canvas text-ink">
         <Sidebar
           ativo={pagina}
           onNavegar={navegar}
@@ -64,8 +66,8 @@ export default function App() {
           <Header
             titulo={titulo}
             onAbrirMenu={() => setMenuAberto(true)}
-            fundo={fundo}
-            onAlternarFundo={alternarFundo}
+            tema={tema}
+            onAlternarTema={alternarTema}
           />
           <main key={pagina} className="mx-auto max-w-7xl animate-fade-up px-4 py-6 sm:px-6 lg:px-8">
             {paginas[pagina]}

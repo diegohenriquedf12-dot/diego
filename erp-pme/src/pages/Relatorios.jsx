@@ -82,14 +82,14 @@ export default function Relatorios() {
       />
 
       <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card className="p-5"><p className="text-sm font-medium text-slate-500">Faturamento total</p><p className="mt-1 text-2xl font-semibold text-emerald-600">{moeda(faturamento)}</p></Card>
-        <Card className="p-5"><p className="text-sm font-medium text-slate-500">Ticket médio</p><p className="mt-1 text-2xl font-semibold text-slate-900">{moeda(ticketMedio)}</p></Card>
-        <Card className="p-5"><p className="text-sm font-medium text-slate-500">Pedidos válidos</p><p className="mt-1 text-2xl font-semibold text-slate-900">{validas.length}</p></Card>
+        <Card className="p-5"><p className="text-sm font-medium text-muted">Faturamento total</p><p className="mt-1 text-2xl font-semibold text-emerald-600">{moeda(faturamento)}</p></Card>
+        <Card className="p-5"><p className="text-sm font-medium text-muted">Ticket médio</p><p className="mt-1 text-2xl font-semibold text-ink">{moeda(ticketMedio)}</p></Card>
+        <Card className="p-5"><p className="text-sm font-medium text-muted">Pedidos válidos</p><p className="mt-1 text-2xl font-semibold text-ink">{validas.length}</p></Card>
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card className="p-5">
-          <h3 className="mb-4 text-sm font-semibold text-slate-900">Faturamento por cliente</h3>
+          <h3 className="mb-4 text-sm font-semibold text-ink">Faturamento por cliente</h3>
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie data={porCliente} dataKey="valor" nameKey="nome" cx="50%" cy="50%" innerRadius={55} outerRadius={90} paddingAngle={2}>
@@ -102,7 +102,7 @@ export default function Relatorios() {
         </Card>
 
         <Card className="p-5">
-          <h3 className="mb-4 text-sm font-semibold text-slate-900">Despesas por categoria</h3>
+          <h3 className="mb-4 text-sm font-semibold text-ink">Despesas por categoria</h3>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={despesas} margin={{ left: -16, right: 8 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
@@ -116,27 +116,27 @@ export default function Relatorios() {
       </div>
 
       <Card className="mt-4">
-        <div className="flex items-center gap-2 border-b border-slate-100 px-5 py-4">
+        <div className="flex items-center gap-2 border-b border-line px-5 py-4">
           <Trophy size={16} className="text-amber-500" />
-          <h3 className="text-sm font-semibold text-slate-900">Produtos mais vendidos</h3>
+          <h3 className="text-sm font-semibold text-ink">Produtos mais vendidos</h3>
         </div>
-        <ul className="divide-y divide-slate-100">
+        <ul className="divide-y divide-line">
           {topProdutos.map((p, i) => {
             const max = topProdutos[0]?.qtd || 1;
             return (
               <li key={p.nome} className="flex items-center gap-4 px-5 py-3">
-                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-slate-100 text-xs font-semibold text-slate-600">{i + 1}</span>
-                <span className="w-40 shrink-0 truncate text-sm font-medium text-slate-900">{p.nome}</span>
-                <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
+                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-card2 text-xs font-semibold text-muted">{i + 1}</span>
+                <span className="w-40 shrink-0 truncate text-sm font-medium text-ink">{p.nome}</span>
+                <div className="h-2 flex-1 overflow-hidden rounded-full bg-card2">
                   <div className="h-full rounded-full bg-emerald-500" style={{ width: `${(p.qtd / max) * 100}%` }} />
                 </div>
-                <span className="w-16 text-right text-sm font-semibold text-slate-900">{p.qtd} un</span>
+                <span className="w-16 text-right text-sm font-semibold text-ink">{p.qtd} un</span>
               </li>
             );
           })}
           {topProdutos.length === 0 && (
-            <li className="flex flex-col items-center gap-2 px-5 py-12 text-center text-sm text-slate-500">
-              <FileBarChart size={24} className="text-slate-300" />
+            <li className="flex flex-col items-center gap-2 px-5 py-12 text-center text-sm text-muted">
+              <FileBarChart size={24} className="text-muted" />
               Sem vendas registradas ainda.
             </li>
           )}

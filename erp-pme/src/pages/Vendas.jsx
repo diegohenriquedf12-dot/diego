@@ -43,14 +43,14 @@ export default function Vendas() {
   };
 
   const colunas = [
-    { chave: 'id', titulo: 'Pedido', render: (v) => <span className="font-mono text-xs font-medium text-slate-700">#{v.id.replace('v', '')}</span> },
+    { chave: 'id', titulo: 'Pedido', render: (v) => <span className="font-mono text-xs font-medium text-ink">#{v.id.replace('v', '')}</span> },
     { chave: 'cliente', titulo: 'Cliente', render: (v) => clientes.find((c) => c.id === v.clienteId)?.nome || '—' },
     { chave: 'data', titulo: 'Data', render: (v) => dataBR(v.data) },
     { chave: 'itens', titulo: 'Itens', render: (v) => `${v.itens.length} item(s)` },
     { chave: 'pagamento', titulo: 'Pagamento', render: (v) => (
-      <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">{v.pagamento}</span>
+      <span className="rounded-md bg-card2 px-2 py-0.5 text-xs font-medium text-muted">{v.pagamento}</span>
     ) },
-    { chave: 'total', titulo: 'Total', alinhar: 'right', render: (v) => <span className="font-semibold text-slate-900">{moeda(totalVenda(v))}</span> },
+    { chave: 'total', titulo: 'Total', alinhar: 'right', render: (v) => <span className="font-semibold text-ink">{moeda(totalVenda(v))}</span> },
     { chave: 'status', titulo: 'Status', render: (v) => <Badge status={v.status} /> },
   ];
 
@@ -65,10 +65,10 @@ export default function Vendas() {
       />
 
       <Card>
-        <div className="border-b border-slate-100 p-4">
+        <div className="border-b border-line p-4">
           <div className="relative max-w-sm">
-            <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar por cliente ou nº do pedido..." className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
+            <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+            <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar por cliente ou nº do pedido..." className="w-full rounded-lg border border-line bg-card2 py-2 pl-9 pr-3 text-sm focus:border-emerald-500 focus:bg-card focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
           </div>
         </div>
         <DataTable colunas={colunas} dados={filtradas} vazio={<EmptyState icone={ShoppingCart} titulo="Nenhuma venda registrada" descricao="Registre vendas para acompanhar faturamento e baixar o estoque automaticamente." />} />
@@ -81,8 +81,8 @@ export default function Vendas() {
         rodape={
           <>
             <div className="mr-auto text-sm">
-              <span className="text-slate-500">Total: </span>
-              <span className="text-base font-semibold text-slate-900">{moeda(totalModal)}</span>
+              <span className="text-muted">Total: </span>
+              <span className="text-base font-semibold text-ink">{moeda(totalModal)}</span>
             </div>
             <Button variant="secondary" onClick={() => setModal(null)}>Cancelar</Button>
             <Button onClick={salvar} disabled={!modal?.clienteId || !modal?.itens.length}>Registrar venda</Button>
@@ -106,7 +106,7 @@ export default function Vendas() {
             </div>
 
             <div>
-              <span className="mb-1 block text-sm font-medium text-slate-700">Itens do pedido</span>
+              <span className="mb-1 block text-sm font-medium text-ink">Itens do pedido</span>
               <div className="flex gap-2">
                 <Select value={produtoSel} onChange={(e) => setProdutoSel(e.target.value)}>
                   <option value="">Adicionar produto...</option>
@@ -116,18 +116,18 @@ export default function Vendas() {
               </div>
 
               <div className="mt-3 space-y-2">
-                {modal.itens.length === 0 && <p className="rounded-lg border border-dashed border-slate-200 py-6 text-center text-sm text-slate-400">Nenhum item adicionado.</p>}
+                {modal.itens.length === 0 && <p className="rounded-lg border border-dashed border-line py-6 text-center text-sm text-muted">Nenhum item adicionado.</p>}
                 {modal.itens.map((i) => {
                   const prod = produtos.find((p) => p.id === i.produtoId);
                   return (
-                    <div key={i.produtoId} className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                    <div key={i.produtoId} className="flex items-center gap-2 rounded-lg border border-line bg-card2 px-3 py-2">
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-slate-800">{prod?.nome}</p>
-                        <p className="text-xs text-slate-500">{moeda(i.preco)} · disp. {prod?.quantidade}</p>
+                        <p className="truncate text-sm font-medium text-ink">{prod?.nome}</p>
+                        <p className="text-xs text-muted">{moeda(i.preco)} · disp. {prod?.quantidade}</p>
                       </div>
-                      <input type="number" min="1" value={i.qtd} onChange={(e) => atualizarQtd(i.produtoId, e.target.value)} className="w-16 rounded-md border border-slate-300 px-2 py-1 text-center text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
-                      <span className="w-24 text-right text-sm font-semibold text-slate-900">{moeda(i.qtd * i.preco)}</span>
-                      <button onClick={() => removerItem(i.produtoId)} className="rounded-md p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600"><X size={15} /></button>
+                      <input type="number" min="1" value={i.qtd} onChange={(e) => atualizarQtd(i.produtoId, e.target.value)} className="w-16 rounded-md border border-line px-2 py-1 text-center text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
+                      <span className="w-24 text-right text-sm font-semibold text-ink">{moeda(i.qtd * i.preco)}</span>
+                      <button onClick={() => removerItem(i.produtoId)} className="rounded-md p-1 text-muted hover:bg-rose-50 hover:text-rose-600"><X size={15} /></button>
                     </div>
                   );
                 })}
@@ -136,7 +136,7 @@ export default function Vendas() {
 
             <div className="grid grid-cols-2 gap-4">
               <Campo label="Data">
-                <input type="date" value={modal.data} onChange={(e) => setModal({ ...modal, data: e.target.value })} className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
+                <input type="date" value={modal.data} onChange={(e) => setModal({ ...modal, data: e.target.value })} className="w-full rounded-lg border border-line px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
               </Campo>
               <Campo label="Situação">
                 <Select value={modal.status} onChange={(e) => setModal({ ...modal, status: e.target.value })}>

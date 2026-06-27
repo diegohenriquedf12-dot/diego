@@ -32,13 +32,13 @@ export default function Clientes() {
       titulo: 'Cliente',
       render: (c) => (
         <div>
-          <p className="font-medium text-slate-900">{c.nome}</p>
-          <p className="text-xs text-slate-500">{c.documento}</p>
+          <p className="font-medium text-ink">{c.nome}</p>
+          <p className="text-xs text-muted">{c.documento}</p>
         </div>
       ),
     },
     { chave: 'email', titulo: 'Contato', render: (c) => (
-      <div><p className="text-slate-700">{c.email}</p><p className="text-xs text-slate-500">{c.telefone}</p></div>
+      <div><p className="text-ink">{c.email}</p><p className="text-xs text-muted">{c.telefone}</p></div>
     ) },
     { chave: 'cidade', titulo: 'Local', render: (c) => `${c.cidade}/${c.uf}` },
     { chave: 'desde', titulo: 'Cliente desde', render: (c) => dataBR(c.desde) },
@@ -49,8 +49,8 @@ export default function Clientes() {
       alinhar: 'right',
       render: (c) => (
         <div className="flex justify-end gap-1">
-          <button onClick={() => setModal(c)} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="Editar"><Pencil size={15} /></button>
-          <button onClick={() => removerCliente(c.id)} className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600" aria-label="Excluir"><Trash2 size={15} /></button>
+          <button onClick={() => setModal(c)} className="rounded-lg p-1.5 text-muted hover:bg-card2 hover:text-ink" aria-label="Editar"><Pencil size={15} /></button>
+          <button onClick={() => removerCliente(c.id)} className="rounded-lg p-1.5 text-muted hover:bg-rose-50 hover:text-rose-600" aria-label="Excluir"><Trash2 size={15} /></button>
         </div>
       ),
     },
@@ -65,14 +65,14 @@ export default function Clientes() {
       />
 
       <Card>
-        <div className="border-b border-slate-100 p-4">
+        <div className="border-b border-line p-4">
           <div className="relative max-w-sm">
-            <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
             <input
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               placeholder="Buscar por nome, documento ou cidade..."
-              className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              className="w-full rounded-lg border border-line bg-card2 py-2 pl-9 pr-3 text-sm focus:border-emerald-500 focus:bg-card focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
         </div>

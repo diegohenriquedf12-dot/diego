@@ -1,12 +1,12 @@
-// Botão com variantes
+// Botão com variantes (segue o tema via tokens)
 const variantes = {
   primary:
-    'bg-brand-500 text-white hover:bg-brand-600 focus-visible:outline-brand-500 shadow-sm active:scale-95',
+    'bg-accent text-accent-ink hover:bg-accent-hover focus-visible:outline-accent shadow-sm active:scale-95',
   secondary:
-    'bg-white text-slate-700 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus-visible:outline-slate-400',
-  ghost: 'text-slate-600 hover:bg-slate-100 focus-visible:outline-slate-400',
+    'bg-card text-ink ring-1 ring-inset ring-line hover:bg-card2 focus-visible:outline-line',
+  ghost: 'text-muted hover:bg-card2 focus-visible:outline-line',
   danger:
-    'bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-200 hover:bg-rose-100 focus-visible:outline-rose-500',
+    'bg-neg/10 text-neg ring-1 ring-inset ring-neg/30 hover:bg-neg/20 focus-visible:outline-neg',
 };
 
 export default function Button({ variant = 'primary', className = '', children, ...props }) {
