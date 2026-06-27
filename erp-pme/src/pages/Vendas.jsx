@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2, ShoppingCart, Search, X } from 'lucide-react';
+import { Plus, PencilLine, Trash2, ShoppingCart, Search, X } from 'lucide-react';
 import { useERP } from '../context/ERPContext';
 import { moeda, dataBR, totalVenda, hoje } from '../utils/format';
 import { PageHeader, Card, EmptyState } from '../components/ui/Layout';
@@ -7,14 +7,16 @@ import DataTable from '../components/ui/DataTable';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
-import { Campo, Select } from '../components/ui/Field';
+import { Campo, Input, Select } from '../components/ui/Field';
 
 const vendaVazia = () => ({ clienteId: '', data: hoje(), itens: [], status: 'pago', pagamento: 'PIX' });
+const manualVazia = () => ({ clienteNome: '', valor: '', data: hoje(), status: 'pago', pagamento: 'PIX' });
 
 export default function Vendas() {
   const { vendas, clientes, produtos, salvarVenda, somenteLeitura } = useERP();
   const [busca, setBusca] = useState('');
   const [modal, setModal] = useState(null);
+  const [modalManual, setModalManual] = useState(null);
   const [produtoSel, setProdutoSel] = useState('');
 
   const filtradas = vendas.filter((v) => {
@@ -42,11 +44,25 @@ export default function Vendas() {
     setModal(null);
   };
 
+  const salvarManual = () => {
+    if (!modalManual.clienteNome.trim() || !(Number(modalManual.valor) > 0)) return;
+    salvarVenda({
+      clienteId: '',
+      clienteNome: modalManual.clienteNome.trim(),
+      data: modalManual.data,
+      pagamento: modalManual.pagamento,
+      status: modalManual.status,
+      itens: [],
+      total: Number(modalManual.valor) || 0,
+    });
+    setModalManual(null);
+  };
+
   const colunas = [
     { chave: 'id', titulo: 'Pedido', render: (v) => <span className="font-mono text-xs font-medium text-ink">#{v.id.replace('v', '')}</span> },
-    { chave: 'cliente', titulo: 'Cliente', render: (v) => clientes.find((c) => c.id === v.clienteId)?.nome || '—' },
+    { chave: 'cliente', titulo: 'Cliente', render: (v) => clientes.find((c) => c.id === v.clienteId)?.nome || v.clienteNome || '—' },
     { chave: 'data', titulo: 'Data', render: (v) => dataBR(v.data) },
-    { chave: 'itens', titulo: 'Itens', render: (v) => `${v.itens.length} item(s)` },
+    { chave: 'itens', titulo: 'Itens', render: (v) => (v.itens.length ? `${v.itens.length} item(s)` : 'Manual') },
     { chave: 'pagamento', titulo: 'Pagamento', render: (v) => (
       <span className="rounded-md bg-card2 px-2 py-0.5 text-xs font-medium text-muted">{v.pagamento}</span>
     ) },
@@ -61,7 +77,12 @@ export default function Vendas() {
       <PageHeader
         titulo="Vendas"
         descricao={`${vendas.filter((v) => v.status !== 'cancelado').length} pedidos válidos`}
-        acao={!somenteLeitura && <Button onClick={() => setModal(vendaVazia())}><Plus size={16} /> Nova venda</Button>}
+        acao={!somenteLeitura && (
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={() => setModalManual(manualVazia())}><PencilLine size={16} /> Lançar manual</Button>
+            <Button onClick={() => setModal(vendaVazia())}><Plus size={16} /> Nova venda</Button>
+          </div>
+        )}
       />
 
       <Card>
@@ -140,6 +161,49 @@ export default function Vendas() {
               </Campo>
               <Campo label="Situação">
                 <Select value={modal.status} onChange={(e) => setModal({ ...modal, status: e.target.value })}>
+                  <option value="pago">Pago</option>
+                  <option value="pendente">Pendente</option>
+                </Select>
+              </Campo>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Lançamento manual: registra uma venda só com nome do cliente e valor,
+          sem precisar de produtos cadastrados (não baixa estoque). */}
+      <Modal
+        aberto={!!modalManual}
+        titulo="Lançar venda manual"
+        onFechar={() => setModalManual(null)}
+        rodape={
+          <>
+            <Button variant="secondary" onClick={() => setModalManual(null)}>Cancelar</Button>
+            <Button onClick={salvarManual} disabled={!modalManual?.clienteNome?.trim() || !(Number(modalManual?.valor) > 0)}>Registrar</Button>
+          </>
+        }
+      >
+        {modalManual && (
+          <div className="space-y-4">
+            <Campo label="Cliente">
+              <Input value={modalManual.clienteNome} onChange={(e) => setModalManual({ ...modalManual, clienteNome: e.target.value })} placeholder="Nome do cliente" />
+            </Campo>
+            <div className="grid grid-cols-2 gap-4">
+              <Campo label="Valor (R$)">
+                <Input type="number" step="0.01" min="0" value={modalManual.valor} onChange={(e) => setModalManual({ ...modalManual, valor: e.target.value })} placeholder="0,00" />
+              </Campo>
+              <Campo label="Data">
+                <input type="date" value={modalManual.data} onChange={(e) => setModalManual({ ...modalManual, data: e.target.value })} className="w-full rounded-lg border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25" />
+              </Campo>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Campo label="Forma de pagamento">
+                <Select value={modalManual.pagamento} onChange={(e) => setModalManual({ ...modalManual, pagamento: e.target.value })}>
+                  {['PIX', 'Cartão', 'Boleto', 'Dinheiro'].map((p) => <option key={p}>{p}</option>)}
+                </Select>
+              </Campo>
+              <Campo label="Situação">
+                <Select value={modalManual.status} onChange={(e) => setModalManual({ ...modalManual, status: e.target.value })}>
                   <option value="pago">Pago</option>
                   <option value="pendente">Pendente</option>
                 </Select>

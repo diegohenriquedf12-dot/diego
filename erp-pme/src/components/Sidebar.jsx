@@ -1,7 +1,6 @@
 import {
   LayoutDashboard,
   Users,
-  Truck,
   Package,
   ShoppingCart,
   ClipboardList,
@@ -29,7 +28,6 @@ export const grupos = [
       { id: 'vendas', nome: 'Vendas', icone: ShoppingCart },
       { id: 'estoque', nome: 'Produtos', icone: Package },
       { id: 'clientes', nome: 'Clientes', icone: Users },
-      { id: 'fornecedores', nome: 'Compras', icone: Truck },
     ],
   },
   {

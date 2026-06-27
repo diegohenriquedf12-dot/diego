@@ -13,8 +13,12 @@ export const dataBR = (iso) => {
 
 export const hoje = () => new Date().toISOString().slice(0, 10);
 
-export const totalVenda = (venda) =>
-  (venda.itens || []).reduce((s, i) => s + i.qtd * i.preco, 0);
+export const totalVenda = (venda) => {
+  const itens = venda.itens || [];
+  // Venda manual (sem itens): usa o total informado diretamente.
+  if (itens.length === 0 && venda.total != null) return Number(venda.total) || 0;
+  return itens.reduce((s, i) => s + i.qtd * i.preco, 0);
+};
 
 export const novoId = (prefixo = '') =>
   prefixo + Math.random().toString(36).slice(2, 9);
