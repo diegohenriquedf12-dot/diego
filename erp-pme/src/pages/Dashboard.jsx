@@ -1,6 +1,6 @@
 import {
   Wallet, TrendingUp, Package, Users, DollarSign, ShoppingCart,
-  ArrowUpRight, ArrowDownRight, AlertTriangle, Boxes, Receipt,
+  ArrowUpRight, ArrowDownRight, AlertTriangle, Boxes, ShoppingBag,
 } from 'lucide-react';
 import {
   ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart, Pie,
@@ -75,7 +75,7 @@ export default function Dashboard({ irPara }) {
       <div className="grid grid-cols-1 gap-4 stagger sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard icone={DollarSign} tom="emerald" label="Receita do mês" valor={mesAtual.receita} formato={(n) => moeda(n)} variacao={variacao(mesAtual.receita, mesAnterior.receita)} meta={Math.min(100, Math.round((mesAtual.receita / 40000) * 100))} />
         <KpiCard icone={TrendingUp} tom="blue" label="Lucro do mês" valor={lucro} formato={(n) => moeda(n)} variacao={variacao(lucro, mesAnterior.receita - mesAnterior.despesa)} />
-        <KpiCard icone={Receipt} tom="rose" label="Despesas do mês" valor={mesAtual.despesa} formato={(n) => moeda(n)} variacao={variacao(mesAtual.despesa, mesAnterior.despesa)} />
+        <KpiCard icone={ShoppingBag} tom="amber" label="Compras (Distribuidora Siqueira Bikes)" valor={indicadores.compras} formato={(n) => moeda(n)} />
         <KpiCard icone={Wallet} tom="violet" label="Saldo em caixa" valor={indicadores.saldo} formato={(n) => moeda(n)} />
       </div>
 
