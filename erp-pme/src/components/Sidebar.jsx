@@ -115,10 +115,10 @@ export default function Sidebar({ ativo, onNavegar, aberto, onFechar }) {
         <div className="border-t border-line p-4">
           <div className="flex items-center gap-3">
             <span className="grid h-9 w-9 place-items-center rounded-full bg-accent text-sm font-semibold text-accent-ink">
-              JM
+              DH
             </span>
             <div className="leading-tight">
-              <p className="text-sm font-medium text-ink">João Martins</p>
+              <p className="text-sm font-medium text-ink">Diego Henrique</p>
               <p className="text-[11px] text-muted">Administrador</p>
             </div>
           </div>

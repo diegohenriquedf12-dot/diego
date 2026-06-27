@@ -62,7 +62,7 @@ export default function Dashboard({ irPara }) {
       <div className="relative mb-6 overflow-hidden rounded-2xl border border-line bg-card p-6 shadow-card">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-accent/15 via-transparent to-transparent" />
         <div className="relative">
-          <p className="text-sm text-muted">Bem-vindo de volta, João 👋</p>
+          <p className="text-sm text-muted">Bem-vindo de volta, Diego 👋</p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight text-ink">Dashboard Executivo</h1>
           <p className="mt-1 text-sm text-muted">Visão geral consolidada — junho de 2026.</p>
         </div>
