@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
+import { Eye } from 'lucide-react';
 import { ERPProvider } from './context/ERPContext';
+import { useAuth } from './context/AuthContext';
 import Sidebar, { modulos } from './components/Sidebar';
 import Header from './components/Header';
+import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Clientes from './pages/Clientes';
 import Fornecedores from './pages/Fornecedores';
@@ -16,6 +19,7 @@ import Metas from './pages/Metas';
 import Agenda from './pages/Agenda';
 
 export default function App() {
+  const { autenticado, somenteLeitura } = useAuth();
   const [pagina, setPagina] = useState('dashboard');
   const [menuAberto, setMenuAberto] = useState(false);
   // Tema: 'dark' ou 'light' (preferência salva no navegador)
@@ -29,6 +33,11 @@ export default function App() {
   }, [tema]);
 
   const alternarTema = () => setTema((t) => (t === 'dark' ? 'light' : 'dark'));
+
+  // Sem login → tela de acesso
+  if (!autenticado) {
+    return <Login tema={tema} onAlternarTema={alternarTema} />;
+  }
 
   const navegar = (id) => {
     setPagina(id);
@@ -69,6 +78,11 @@ export default function App() {
             tema={tema}
             onAlternarTema={alternarTema}
           />
+          {somenteLeitura && (
+            <div className="flex items-center justify-center gap-2 border-b border-amber-500/30 bg-amber-500/10 px-4 py-2 text-center text-xs font-medium text-amber-500">
+              <Eye size={14} /> Modo convidado — somente leitura. Alterações estão desativadas.
+            </div>
+          )}
           <main key={pagina} className="mx-auto max-w-7xl animate-fade-up px-4 py-6 sm:px-6 lg:px-8">
             {paginas[pagina]}
           </main>

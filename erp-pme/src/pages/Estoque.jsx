@@ -13,7 +13,7 @@ const categorias = ['Insumos', 'Embalagens', 'Bebidas', 'Componentes', 'Outros']
 const vazio = { nome: '', sku: '', categoria: 'Insumos', custo: 0, preco: 0, quantidade: 0, estoqueMinimo: 0, unidade: 'un' };
 
 export default function Estoque() {
-  const { produtos, salvarProduto, removerProduto, indicadores } = useERP();
+  const { produtos, salvarProduto, removerProduto, indicadores, somenteLeitura } = useERP();
   const [busca, setBusca] = useState('');
   const [filtro, setFiltro] = useState('todos');
   const [modal, setModal] = useState(null);
@@ -47,12 +47,13 @@ export default function Estoque() {
       <span className="font-semibold text-ink">{p.quantidade} <span className="text-xs font-normal text-muted">{p.unidade}</span></span>
     ) },
     { chave: 'nivel', titulo: 'Situação', render: (p) => <Badge status={nivelEstoque(p)} /> },
-    { chave: 'acoes', titulo: '', alinhar: 'right', render: (p) => (
-      <div className="flex justify-end gap-1">
-        <button onClick={() => setModal(p)} className="rounded-lg p-1.5 text-muted hover:bg-card2 hover:text-ink"><Pencil size={15} /></button>
-        <button onClick={() => removerProduto(p.id)} className="rounded-lg p-1.5 text-muted hover:bg-rose-50 hover:text-rose-600"><Trash2 size={15} /></button>
-      </div>
-    ) },
+    { chave: 'acoes', titulo: '', alinhar: 'right', render: (p) =>
+      somenteLeitura ? null : (
+        <div className="flex justify-end gap-1">
+          <button onClick={() => setModal(p)} className="rounded-lg p-1.5 text-muted hover:bg-card2 hover:text-ink"><Pencil size={15} /></button>
+          <button onClick={() => removerProduto(p.id)} className="rounded-lg p-1.5 text-muted hover:bg-rose-50 hover:text-rose-600"><Trash2 size={15} /></button>
+        </div>
+      ) },
   ];
 
   return (
@@ -60,7 +61,7 @@ export default function Estoque() {
       <PageHeader
         titulo="Estoque"
         descricao={`${produtos.length} produtos · ${moeda(indicadores.valorEstoque)} em estoque`}
-        acao={<Button onClick={() => setModal({ ...vazio })}><Plus size={16} /> Novo produto</Button>}
+        acao={!somenteLeitura && <Button onClick={() => setModal({ ...vazio })}><Plus size={16} /> Novo produto</Button>}
       />
 
       {indicadores.estoqueBaixo > 0 && (

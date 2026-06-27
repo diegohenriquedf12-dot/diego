@@ -16,7 +16,7 @@ const vazio = {
 };
 
 export default function Funcionarios({ irPara }) {
-  const { funcionarios, indicadores, salvarFuncionario, removerFuncionario } = useERP();
+  const { funcionarios, indicadores, salvarFuncionario, removerFuncionario, somenteLeitura } = useERP();
   const [busca, setBusca] = useState('');
   const [modal, setModal] = useState(false);
   const [form, setForm] = useState(vazio);
@@ -61,12 +61,13 @@ export default function Funcionarios({ irPara }) {
       chave: 'acoes',
       titulo: '',
       alinhar: 'right',
-      render: (f) => (
-        <div className="flex justify-end gap-1">
-          <button onClick={() => { setForm(f); setModal(true); }} className="rounded-lg px-2 py-1 text-xs font-medium text-accent hover:bg-accent/10">Editar</button>
-          <button onClick={() => removerFuncionario(f.id)} className="rounded-lg p-1.5 text-rose-500 hover:bg-rose-50" aria-label="Excluir"><Trash2 size={15} /></button>
-        </div>
-      ),
+      render: (f) =>
+        somenteLeitura ? null : (
+          <div className="flex justify-end gap-1">
+            <button onClick={() => { setForm(f); setModal(true); }} className="rounded-lg px-2 py-1 text-xs font-medium text-accent hover:bg-accent/10">Editar</button>
+            <button onClick={() => removerFuncionario(f.id)} className="rounded-lg p-1.5 text-rose-500 hover:bg-rose-50" aria-label="Excluir"><Trash2 size={15} /></button>
+          </div>
+        ),
     },
   ];
 
@@ -78,7 +79,9 @@ export default function Funcionarios({ irPara }) {
         acao={
           <div className="flex gap-2">
             <Button variant="secondary" onClick={() => irPara('dashboard')}><ArrowLeft size={16} /> Dashboard</Button>
-            <Button onClick={() => { setForm(vazio); setModal(true); }}><Plus size={16} /> Novo funcionário</Button>
+            {!somenteLeitura && (
+              <Button onClick={() => { setForm(vazio); setModal(true); }}><Plus size={16} /> Novo funcionário</Button>
+            )}
           </div>
         }
       />

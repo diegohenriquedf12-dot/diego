@@ -12,7 +12,7 @@ import { Campo, Input, Select } from '../components/ui/Field';
 const vazio = { tipo: 'receber', descricao: '', valor: 0, vencimento: hoje(), status: 'pendente', categoria: 'Vendas' };
 
 export default function Financeiro() {
-  const { contas, indicadores, salvarConta, removerConta, quitarConta } = useERP();
+  const { contas, indicadores, salvarConta, removerConta, quitarConta, somenteLeitura } = useERP();
   const [aba, setAba] = useState('todas'); // todas | receber | pagar
   const [modal, setModal] = useState(null);
 
@@ -43,14 +43,15 @@ export default function Financeiro() {
       </span>
     ) },
     { chave: 'status', titulo: 'Situação', render: (c) => <Badge status={situacaoConta(c)} /> },
-    { chave: 'acoes', titulo: '', alinhar: 'right', render: (c) => (
-      <div className="flex justify-end gap-1">
-        {c.status !== 'pago' && (
-          <button onClick={() => quitarConta(c.id)} className="rounded-lg p-1.5 text-muted hover:bg-emerald-50 hover:text-emerald-600" title="Marcar como pago"><CheckCircle2 size={15} /></button>
-        )}
-        <button onClick={() => removerConta(c.id)} className="rounded-lg p-1.5 text-muted hover:bg-rose-50 hover:text-rose-600"><Trash2 size={15} /></button>
-      </div>
-    ) },
+    { chave: 'acoes', titulo: '', alinhar: 'right', render: (c) =>
+      somenteLeitura ? null : (
+        <div className="flex justify-end gap-1">
+          {c.status !== 'pago' && (
+            <button onClick={() => quitarConta(c.id)} className="rounded-lg p-1.5 text-muted hover:bg-emerald-50 hover:text-emerald-600" title="Marcar como pago"><CheckCircle2 size={15} /></button>
+          )}
+          <button onClick={() => removerConta(c.id)} className="rounded-lg p-1.5 text-muted hover:bg-rose-50 hover:text-rose-600"><Trash2 size={15} /></button>
+        </div>
+      ) },
   ];
 
   return (
@@ -58,7 +59,7 @@ export default function Financeiro() {
       <PageHeader
         titulo="Financeiro"
         descricao="Contas a pagar e a receber"
-        acao={<Button onClick={() => setModal({ ...vazio })}><Plus size={16} /> Novo lançamento</Button>}
+        acao={!somenteLeitura && <Button onClick={() => setModal({ ...vazio })}><Plus size={16} /> Novo lançamento</Button>}
       />
 
       <div className="mb-4 grid grid-cols-2 gap-4 lg:grid-cols-4">

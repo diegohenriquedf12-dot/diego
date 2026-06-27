@@ -12,7 +12,7 @@ import { Campo, Input, Select } from '../components/ui/Field';
 const vazio = { nome: '', documento: '', email: '', telefone: '', cidade: '', uf: 'SP', status: 'ativo' };
 
 export default function Clientes() {
-  const { clientes, salvarCliente, removerCliente } = useERP();
+  const { clientes, salvarCliente, removerCliente, somenteLeitura } = useERP();
   const [busca, setBusca] = useState('');
   const [modal, setModal] = useState(null); // null | objeto cliente
 
@@ -47,12 +47,13 @@ export default function Clientes() {
       chave: 'acoes',
       titulo: '',
       alinhar: 'right',
-      render: (c) => (
-        <div className="flex justify-end gap-1">
-          <button onClick={() => setModal(c)} className="rounded-lg p-1.5 text-muted hover:bg-card2 hover:text-ink" aria-label="Editar"><Pencil size={15} /></button>
-          <button onClick={() => removerCliente(c.id)} className="rounded-lg p-1.5 text-muted hover:bg-rose-50 hover:text-rose-600" aria-label="Excluir"><Trash2 size={15} /></button>
-        </div>
-      ),
+      render: (c) =>
+        somenteLeitura ? null : (
+          <div className="flex justify-end gap-1">
+            <button onClick={() => setModal(c)} className="rounded-lg p-1.5 text-muted hover:bg-card2 hover:text-ink" aria-label="Editar"><Pencil size={15} /></button>
+            <button onClick={() => removerCliente(c.id)} className="rounded-lg p-1.5 text-muted hover:bg-rose-50 hover:text-rose-600" aria-label="Excluir"><Trash2 size={15} /></button>
+          </div>
+        ),
     },
   ];
 
@@ -61,7 +62,7 @@ export default function Clientes() {
       <PageHeader
         titulo="Clientes"
         descricao={`${clientes.length} cadastrados · ${clientes.filter((c) => c.status === 'ativo').length} ativos`}
-        acao={<Button onClick={() => setModal({ ...vazio })}><Plus size={16} /> Novo cliente</Button>}
+        acao={!somenteLeitura && <Button onClick={() => setModal({ ...vazio })}><Plus size={16} /> Novo cliente</Button>}
       />
 
       <Card>

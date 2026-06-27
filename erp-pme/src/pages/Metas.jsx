@@ -14,7 +14,7 @@ const fmt = (m) => (m.tipo === 'moeda' ? (n) => moeda(n) : (n) => Math.round(n).
 const vazio = { titulo: '', tipo: 'numero', atual: '', alvo: '', tom: 'blue' };
 
 export default function Metas({ irPara }) {
-  const { metas, salvarMeta, removerMeta } = useERP();
+  const { metas, salvarMeta, removerMeta, somenteLeitura } = useERP();
   const [modal, setModal] = useState(false);
   const [form, setForm] = useState(vazio);
 
@@ -41,7 +41,9 @@ export default function Metas({ irPara }) {
         acao={
           <div className="flex gap-2">
             <Button variant="secondary" onClick={() => irPara('dashboard')}><ArrowLeft size={16} /> Dashboard</Button>
-            <Button onClick={() => { setForm(vazio); setModal(true); }}><Plus size={16} /> Nova meta</Button>
+            {!somenteLeitura && (
+              <Button onClick={() => { setForm(vazio); setModal(true); }}><Plus size={16} /> Nova meta</Button>
+            )}
           </div>
         }
       />
@@ -106,10 +108,12 @@ export default function Metas({ irPara }) {
                 <ProgressBar valor={m.pct} tom={tom} altura="h-2.5" />
               </div>
 
-              <div className="mt-4 flex justify-end">
-                <button onClick={() => { setForm(m); setModal(true); }} className="rounded-lg px-2 py-1 text-xs font-medium text-accent hover:bg-accent/10">Editar</button>
-                <button onClick={() => removerMeta(m.id)} className="rounded-lg p-1.5 text-rose-500 hover:bg-rose-50" aria-label="Excluir"><Trash2 size={15} /></button>
-              </div>
+              {!somenteLeitura && (
+                <div className="mt-4 flex justify-end">
+                  <button onClick={() => { setForm(m); setModal(true); }} className="rounded-lg px-2 py-1 text-xs font-medium text-accent hover:bg-accent/10">Editar</button>
+                  <button onClick={() => removerMeta(m.id)} className="rounded-lg p-1.5 text-rose-500 hover:bg-rose-50" aria-label="Excluir"><Trash2 size={15} /></button>
+                </div>
+              )}
             </Card>
           );
         })}
