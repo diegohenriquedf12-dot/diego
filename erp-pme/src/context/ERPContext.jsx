@@ -217,6 +217,12 @@ export function ERPProvider({ children }) {
     const aPagar = contas
       .filter((c) => c.tipo === 'pagar' && c.status !== 'pago')
       .reduce((s, c) => s + c.valor, 0);
+    const compras = contas
+      .filter((c) => c.tipo === 'pagar' && c.categoria === 'Compras')
+      .reduce((s, c) => s + (Number(c.valor) || 0), 0);
+    const comprasQtd = contas.filter(
+      (c) => c.tipo === 'pagar' && c.categoria === 'Compras'
+    ).length;
     const valorEstoque = produtos.reduce((s, p) => s + p.custo * p.quantidade, 0);
     const estoqueBaixo = produtos.filter((p) => p.quantidade <= p.estoqueMinimo).length;
     const pedidosAndamento = pedidos.filter(
@@ -233,6 +239,8 @@ export function ERPProvider({ children }) {
       saldo: recebido - pago,
       aReceber,
       aPagar,
+      compras,
+      comprasQtd,
       valorEstoque,
       estoqueBaixo,
       totalClientes: clientes.filter((c) => c.status === 'ativo').length,
