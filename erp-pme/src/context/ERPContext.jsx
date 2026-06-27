@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import {
   clientesSeed,
   fornecedoresSeed,
@@ -15,17 +15,38 @@ import { novoId, totalVenda } from '../utils/format';
 
 const ERPContext = createContext(null);
 
+// Estado persistido no navegador (localStorage) — sobrevive ao recarregar a página.
+function useColecaoPersistida(chave, inicial) {
+  const id = `erp:${chave}`;
+  const [valor, setValor] = useState(() => {
+    try {
+      const salvo = localStorage.getItem(id);
+      return salvo ? JSON.parse(salvo) : inicial;
+    } catch {
+      return inicial;
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem(id, JSON.stringify(valor));
+    } catch {
+      /* ignora cota/erros de storage */
+    }
+  }, [id, valor]);
+  return [valor, setValor];
+}
+
 export function ERPProvider({ children }) {
-  const [clientes, setClientes] = useState(clientesSeed);
-  const [fornecedores, setFornecedores] = useState(fornecedoresSeed);
-  const [produtos, setProdutos] = useState(produtosSeed);
-  const [vendas, setVendas] = useState(vendasSeed);
-  const [contas, setContas] = useState(contasSeed);
+  const [clientes, setClientes] = useColecaoPersistida('clientes', clientesSeed);
+  const [fornecedores, setFornecedores] = useColecaoPersistida('fornecedores', fornecedoresSeed);
+  const [produtos, setProdutos] = useColecaoPersistida('produtos', produtosSeed);
+  const [vendas, setVendas] = useColecaoPersistida('vendas', vendasSeed);
+  const [contas, setContas] = useColecaoPersistida('contas', contasSeed);
   const [historico] = useState(historicoSeed);
-  const [pedidos, setPedidos] = useState(pedidosSeed);
-  const [funcionarios, setFuncionarios] = useState(funcionariosSeed);
-  const [metas, setMetas] = useState(metasSeed);
-  const [eventos, setEventos] = useState(eventosSeed);
+  const [pedidos, setPedidos] = useColecaoPersistida('pedidos', pedidosSeed);
+  const [funcionarios, setFuncionarios] = useColecaoPersistida('funcionarios', funcionariosSeed);
+  const [metas, setMetas] = useColecaoPersistida('metas', metasSeed);
+  const [eventos, setEventos] = useColecaoPersistida('eventos', eventosSeed);
 
   // ---- CRUD genérico por coleção ----
   const upsert = (setter, prefixo) => (registro) =>

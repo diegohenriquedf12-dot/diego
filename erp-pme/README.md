@@ -113,7 +113,7 @@ erp-pme/
 
 ## Conectando a um back-end
 
-O estado e os dados vivem em memória (`src/data/seed.js` + `ERPContext`). Para integrar com um back-end real:
+Os dados são **persistidos no navegador** (`localStorage`, via `useColecaoPersistida` no `ERPContext`), então os cadastros sobrevivem ao recarregar a página. Para integrar com um back-end real:
 
 1. Substitua os `useState(...Seed)` em `ERPContext.jsx` por chamadas à sua API (`fetch`/`axios`) dentro de `useEffect`.
 2. Troque as funções `salvar*`/`remover*` por requisições `POST`/`PUT`/`DELETE`.
