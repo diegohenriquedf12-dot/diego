@@ -1,4 +1,4 @@
-# Gestor Siqueira — ERP web para pequenas empresas
+# Gestão Siqueira — ERP web para pequenas empresas
 
 ERP completo em React para gestão de pequenas empresas. Interface **premium**, responsiva e modular, com **design corporativo, animações suaves** (contagem de KPIs, barras de progresso animadas, transições entre páginas), gráficos dinâmicos e operações de cadastro (CRUD) em cada módulo.
 
