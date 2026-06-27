@@ -12,10 +12,12 @@ import {
   eventosSeed,
 } from '../data/seed';
 import { novoId, totalVenda } from '../utils/format';
+import { supabase, supabaseAtivo } from '../lib/supabase';
 
 const ERPContext = createContext(null);
 
-// Estado persistido no navegador (localStorage) — sobrevive ao recarregar a página.
+// Estado em cache no navegador (localStorage) — também é o fallback quando
+// não há back-end (Supabase) configurado.
 function useColecaoPersistida(chave, inicial) {
   const id = `erp:${chave}`;
   const [valor, setValor] = useState(() => {
@@ -48,17 +50,66 @@ export function ERPProvider({ children }) {
   const [metas, setMetas] = useColecaoPersistida('metas', metasSeed);
   const [eventos, setEventos] = useColecaoPersistida('eventos', eventosSeed);
 
-  // ---- CRUD genérico por coleção ----
-  const upsert = (setter, prefixo) => (registro) =>
-    setter((lista) => {
-      if (registro.id) {
-        return lista.map((r) => (r.id === registro.id ? { ...r, ...registro } : r));
-      }
-      return [{ ...registro, id: novoId(prefixo) }, ...lista];
-    });
+  // ---- Sincronização com o Supabase (no-op quando não configurado) ----
+  // Esquema das tabelas: id text (PK), dados jsonb, atualizado_em timestamptz.
+  const sincronizar = (tabela, registro) => {
+    if (!supabaseAtivo) return;
+    supabase
+      .from(tabela)
+      .upsert({ id: registro.id, dados: registro, atualizado_em: new Date().toISOString() })
+      .then(({ error }) => error && console.warn(`Supabase upsert ${tabela}:`, error.message));
+  };
+  const removerRemoto = (tabela, id) => {
+    if (!supabaseAtivo) return;
+    supabase
+      .from(tabela)
+      .delete()
+      .eq('id', id)
+      .then(({ error }) => error && console.warn(`Supabase delete ${tabela}:`, error.message));
+  };
 
-  const remover = (setter) => (id) =>
+  // Ao iniciar com Supabase ativo, carrega cada tabela e substitui o cache local.
+  useEffect(() => {
+    if (!supabaseAtivo) return;
+    const setters = {
+      clientes: setClientes,
+      fornecedores: setFornecedores,
+      produtos: setProdutos,
+      vendas: setVendas,
+      contas: setContas,
+      pedidos: setPedidos,
+      funcionarios: setFuncionarios,
+      metas: setMetas,
+      eventos: setEventos,
+    };
+    (async () => {
+      for (const [tabela, set] of Object.entries(setters)) {
+        const { data, error } = await supabase
+          .from(tabela)
+          .select('id,dados')
+          .order('atualizado_em', { ascending: false });
+        if (!error && data) set(data.map((r) => ({ id: r.id, ...r.dados })));
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ---- CRUD genérico por coleção (estado local + Supabase) ----
+  const upsert = (setter, prefixo, tabela) => (registro) => {
+    const completo = registro.id ? registro : { ...registro, id: novoId(prefixo) };
+    setter((lista) =>
+      registro.id
+        ? lista.map((r) => (r.id === completo.id ? { ...r, ...completo } : r))
+        : [completo, ...lista]
+    );
+    sincronizar(tabela, completo);
+    return completo;
+  };
+
+  const remover = (setter, tabela) => (id) => {
     setter((lista) => lista.filter((r) => r.id !== id));
+    removerRemoto(tabela, id);
+  };
 
   // ---- Vendas: baixa de estoque + lançamento financeiro ----
   const salvarVenda = (venda) => {
@@ -69,33 +120,39 @@ export function ERPProvider({ children }) {
     setVendas((lista) =>
       venda.id ? lista.map((v) => (v.id === venda.id ? completa : v)) : [completa, ...lista]
     );
+    sincronizar('vendas', completa);
 
     // Baixa de estoque apenas em vendas novas e não canceladas
     if (!venda.id && venda.status !== 'cancelado') {
-      setProdutos((lista) =>
-        lista.map((p) => {
+      const afetados = produtos
+        .filter((p) => venda.itens.some((i) => i.produtoId === p.id))
+        .map((p) => {
           const item = venda.itens.find((i) => i.produtoId === p.id);
-          return item ? { ...p, quantidade: Math.max(0, p.quantidade - item.qtd) } : p;
-        })
-      );
+          return { ...p, quantidade: Math.max(0, p.quantidade - item.qtd) };
+        });
+      setProdutos((lista) => lista.map((p) => afetados.find((a) => a.id === p.id) || p));
+      afetados.forEach((p) => sincronizar('produtos', p));
+
       const cliente = clientes.find((c) => c.id === venda.clienteId);
-      setContas((lista) => [
-        {
-          id: novoId('t'),
-          tipo: 'receber',
-          descricao: `Venda #${id.replace('v', '')} — ${cliente?.nome || 'Cliente'}`,
-          valor: total,
-          vencimento: venda.data,
-          status: venda.status === 'pago' ? 'pago' : 'pendente',
-          categoria: 'Vendas',
-        },
-        ...lista,
-      ]);
+      const conta = {
+        id: novoId('t'),
+        tipo: 'receber',
+        descricao: `Venda #${id.replace('v', '')} — ${cliente?.nome || 'Cliente'}`,
+        valor: total,
+        vencimento: venda.data,
+        status: venda.status === 'pago' ? 'pago' : 'pendente',
+        categoria: 'Vendas',
+      };
+      setContas((lista) => [conta, ...lista]);
+      sincronizar('contas', conta);
     }
   };
 
-  const quitarConta = (id) =>
+  const quitarConta = (id) => {
     setContas((lista) => lista.map((c) => (c.id === id ? { ...c, status: 'pago' } : c)));
+    const conta = contas.find((c) => c.id === id);
+    if (conta) sincronizar('contas', { ...conta, status: 'pago' });
+  };
 
   // ---- Indicadores derivados ----
   const indicadores = useMemo(() => {
@@ -152,22 +209,23 @@ export function ERPProvider({ children }) {
     metas,
     eventos,
     indicadores,
-    salvarCliente: upsert(setClientes, 'c'),
-    removerCliente: remover(setClientes),
-    salvarFornecedor: upsert(setFornecedores, 'f'),
-    removerFornecedor: remover(setFornecedores),
-    salvarProduto: upsert(setProdutos, 'p'),
-    removerProduto: remover(setProdutos),
-    salvarConta: upsert(setContas, 't'),
-    removerConta: remover(setContas),
-    salvarPedido: upsert(setPedidos, 'pd'),
-    removerPedido: remover(setPedidos),
-    salvarFuncionario: upsert(setFuncionarios, 'e'),
-    removerFuncionario: remover(setFuncionarios),
-    salvarMeta: upsert(setMetas, 'm'),
-    removerMeta: remover(setMetas),
-    salvarEvento: upsert(setEventos, 'ag'),
-    removerEvento: remover(setEventos),
+    backendAtivo: supabaseAtivo,
+    salvarCliente: upsert(setClientes, 'c', 'clientes'),
+    removerCliente: remover(setClientes, 'clientes'),
+    salvarFornecedor: upsert(setFornecedores, 'f', 'fornecedores'),
+    removerFornecedor: remover(setFornecedores, 'fornecedores'),
+    salvarProduto: upsert(setProdutos, 'p', 'produtos'),
+    removerProduto: remover(setProdutos, 'produtos'),
+    salvarConta: upsert(setContas, 't', 'contas'),
+    removerConta: remover(setContas, 'contas'),
+    salvarPedido: upsert(setPedidos, 'pd', 'pedidos'),
+    removerPedido: remover(setPedidos, 'pedidos'),
+    salvarFuncionario: upsert(setFuncionarios, 'e', 'funcionarios'),
+    removerFuncionario: remover(setFuncionarios, 'funcionarios'),
+    salvarMeta: upsert(setMetas, 'm', 'metas'),
+    removerMeta: remover(setMetas, 'metas'),
+    salvarEvento: upsert(setEventos, 'ag', 'eventos'),
+    removerEvento: remover(setEventos, 'eventos'),
     salvarVenda,
     quitarConta,
   };

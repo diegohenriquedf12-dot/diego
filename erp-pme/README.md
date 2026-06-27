@@ -111,12 +111,17 @@ erp-pme/
         └── Relatorios.jsx
 ```
 
-## Conectando a um back-end
+## Back-end (Supabase)
 
-Os dados são **persistidos no navegador** (`localStorage`, via `useColecaoPersistida` no `ERPContext`), então os cadastros sobrevivem ao recarregar a página. Para integrar com um back-end real:
+O app já vem **preparado para o Supabase** (PostgreSQL gerenciado):
 
-1. Substitua os `useState(...Seed)` em `ERPContext.jsx` por chamadas à sua API (`fetch`/`axios`) dentro de `useEffect`.
-2. Troque as funções `salvar*`/`remover*` por requisições `POST`/`PUT`/`DELETE`.
-3. Os componentes de página não precisam mudar — eles consomem tudo via `useERP()`.
+- Sem credenciais → usa o `localStorage` do navegador (funciona offline).
+- Com credenciais (`VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY`) → os dados são
+  carregados e salvos no Supabase, disponíveis em qualquer dispositivo.
 
-> Os dados de exemplo são fictícios e servem apenas para demonstração.
+O `ERPContext` sincroniza cada coleção automaticamente (insert/update/delete) e
+mantém o `localStorage` como cache/fallback. Para conectar, siga o
+**[guia de configuração](./SUPABASE.md)** e rode o esquema em
+[`supabase/schema.sql`](./supabase/schema.sql).
+
+> Os componentes de página não mudam — tudo é consumido via `useERP()`.
