@@ -11,6 +11,7 @@ import Compras from './pages/Compras';
 import Estoque from './pages/Estoque';
 import Vendas from './pages/Vendas';
 import Financeiro from './pages/Financeiro';
+import DespesasFixas from './pages/DespesasFixas';
 import FluxoCaixa from './pages/FluxoCaixa';
 import Relatorios from './pages/Relatorios';
 import Pedidos from './pages/Pedidos';
@@ -60,6 +61,7 @@ export default function App() {
     clientes: <Clientes />,
     compras: <Compras />,
     financeiro: <Financeiro />,
+    despesasfixas: <DespesasFixas />,
     fluxo: <FluxoCaixa />,
     funcionarios: <Funcionarios irPara={navegar} />,
     metas: <Metas irPara={navegar} />,

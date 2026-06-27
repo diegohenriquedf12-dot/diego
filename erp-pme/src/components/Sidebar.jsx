@@ -7,6 +7,7 @@ import {
   ClipboardList,
   Wallet,
   ArrowLeftRight,
+  Repeat,
   BarChart3,
   UserCog,
   Target,
@@ -36,6 +37,7 @@ export const grupos = [
     titulo: 'Financeiro',
     itens: [
       { id: 'financeiro', nome: 'Financeiro', icone: Wallet },
+      { id: 'despesasfixas', nome: 'Despesas fixas', icone: Repeat },
       { id: 'fluxo', nome: 'Fluxo de caixa', icone: ArrowLeftRight },
     ],
   },
