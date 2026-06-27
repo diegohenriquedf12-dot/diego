@@ -56,3 +56,44 @@ export const historicoSeed = [
   { mes: 'Mai', receita: 34100, despesa: 22600 },
   { mes: 'Jun', receita: 37450, despesa: 24300 },
 ];
+
+// Etapas do fluxo de um pedido (para barra de progresso)
+export const etapasPedido = ['recebido', 'separacao', 'enviado', 'entregue'];
+
+export const pedidosSeed = [
+  { id: 'pd2048', clienteId: 'c1', produto: 'Farinha de Trigo 25kg', qtd: 6, valor: 660, data: '2026-06-24', transportadora: 'Logística Veloz', rastreio: 'LV482910BR', status: 'enviado', pagamento: 'pago', entregaPrevista: '2026-06-29', entregaRealizada: '' },
+  { id: 'pd2047', clienteId: 'c5', produto: 'Café Torrado 1kg', qtd: 10, valor: 499, data: '2026-06-23', transportadora: 'Correios', rastreio: 'BR773120901', status: 'separacao', pagamento: 'pago', entregaPrevista: '2026-06-30', entregaRealizada: '' },
+  { id: 'pd2046', clienteId: 'c2', produto: 'Embalagem Kraft P (100un)', qtd: 12, valor: 478.8, data: '2026-06-22', transportadora: 'Jadlog', rastreio: 'JD90021744', status: 'recebido', pagamento: 'pendente', entregaPrevista: '2026-07-02', entregaRealizada: '' },
+  { id: 'pd2045', clienteId: 'c3', produto: 'Açúcar Refinado 5kg', qtd: 20, valor: 498, data: '2026-06-19', transportadora: 'Logística Veloz', rastreio: 'LV482733BR', status: 'entregue', pagamento: 'pago', entregaPrevista: '2026-06-24', entregaRealizada: '2026-06-23' },
+  { id: 'pd2044', clienteId: 'c6', produto: 'Copo Descartável 200ml', qtd: 30, valor: 387, data: '2026-06-17', transportadora: 'Correios', rastreio: 'BR773000128', status: 'entregue', pagamento: 'pago', entregaPrevista: '2026-06-22', entregaRealizada: '2026-06-21' },
+  { id: 'pd2043', clienteId: 'c1', produto: 'Fermento Biológico 500g', qtd: 8, valor: 180, data: '2026-06-15', transportadora: 'Jadlog', rastreio: 'JD90019980', status: 'cancelado', pagamento: 'estornado', entregaPrevista: '2026-06-20', entregaRealizada: '' },
+];
+
+export const funcionariosSeed = [
+  { id: 'e1', nome: 'João Martins', cargo: 'Diretor', departamento: 'Administração', salario: 12000, admissao: '2021-03-01', contato: '(11) 99999-1001', email: 'joao@empresa.com.br', status: 'ativo', ferias: 'Disponível' },
+  { id: 'e2', nome: 'Mariana Lopes', cargo: 'Gerente Comercial', departamento: 'Vendas', salario: 7800, admissao: '2022-01-17', contato: '(11) 99999-1002', email: 'mariana@empresa.com.br', status: 'ativo', ferias: 'Agendada' },
+  { id: 'e3', nome: 'Rafael Costa', cargo: 'Analista Financeiro', departamento: 'Financeiro', salario: 5200, admissao: '2022-08-09', contato: '(11) 99999-1003', email: 'rafael@empresa.com.br', status: 'ativo', ferias: 'Disponível' },
+  { id: 'e4', nome: 'Beatriz Nunes', cargo: 'Auxiliar de Estoque', departamento: 'Logística', salario: 2600, admissao: '2023-05-22', contato: '(11) 99999-1004', email: 'beatriz@empresa.com.br', status: 'ativo', ferias: 'Em férias' },
+  { id: 'e5', nome: 'Carlos Eduardo', cargo: 'Vendedor', departamento: 'Vendas', salario: 3400, admissao: '2023-11-03', contato: '(11) 99999-1005', email: 'carlos@empresa.com.br', status: 'ativo', ferias: 'Disponível' },
+  { id: 'e6', nome: 'Patrícia Reis', cargo: 'Atendimento', departamento: 'SAC', salario: 2900, admissao: '2024-02-14', contato: '(11) 99999-1006', email: 'patricia@empresa.com.br', status: 'afastado', ferias: 'Disponível' },
+];
+
+// Metas mensais — atual vs. alvo (o % é calculado na página)
+export const metasSeed = [
+  { id: 'm1', titulo: 'Receita do mês', tipo: 'moeda', atual: 37450, alvo: 40000, tom: 'emerald' },
+  { id: 'm2', titulo: 'Vendas fechadas', tipo: 'numero', atual: 48, alvo: 60, tom: 'blue' },
+  { id: 'm3', titulo: 'Novos clientes', tipo: 'numero', atual: 12, alvo: 15, tom: 'violet' },
+  { id: 'm4', titulo: 'Lucro líquido', tipo: 'moeda', atual: 13150, alvo: 12000, tom: 'emerald' },
+  { id: 'm5', titulo: 'Ticket médio', tipo: 'moeda', atual: 540, alvo: 700, tom: 'amber' },
+  { id: 'm6', titulo: 'Redução de despesas', tipo: 'numero', atual: 6, alvo: 10, tom: 'rose' },
+];
+
+export const eventosSeed = [
+  { id: 'ag1', data: '2026-06-27', hora: '09:30', titulo: 'Reunião comercial — metas Q3', tipo: 'reuniao' },
+  { id: 'ag2', data: '2026-06-28', hora: '14:00', titulo: 'Pagamento Distribuidora Atlântico', tipo: 'pagamento' },
+  { id: 'ag3', data: '2026-06-28', hora: '', titulo: 'Vencimento energia elétrica', tipo: 'vencimento' },
+  { id: 'ag4', data: '2026-06-30', hora: '', titulo: 'Aniversário — Mariana Lopes', tipo: 'aniversario' },
+  { id: 'ag5', data: '2026-07-05', hora: '08:00', titulo: 'Folha de pagamento — Junho', tipo: 'pagamento' },
+  { id: 'ag6', data: '2026-06-29', hora: '16:00', titulo: 'Treinamento equipe de vendas', tipo: 'evento' },
+  { id: 'ag7', data: '2026-07-02', hora: '11:00', titulo: 'Entrega prevista pedido #2046', tipo: 'evento' },
+];

@@ -6,6 +6,10 @@ import {
   vendasSeed,
   contasSeed,
   historicoSeed,
+  pedidosSeed,
+  funcionariosSeed,
+  metasSeed,
+  eventosSeed,
 } from '../data/seed';
 import { novoId, totalVenda } from '../utils/format';
 
@@ -18,6 +22,10 @@ export function ERPProvider({ children }) {
   const [vendas, setVendas] = useState(vendasSeed);
   const [contas, setContas] = useState(contasSeed);
   const [historico] = useState(historicoSeed);
+  const [pedidos, setPedidos] = useState(pedidosSeed);
+  const [funcionarios, setFuncionarios] = useState(funcionariosSeed);
+  const [metas, setMetas] = useState(metasSeed);
+  const [eventos, setEventos] = useState(eventosSeed);
 
   // ---- CRUD genérico por coleção ----
   const upsert = (setter, prefixo) => (registro) =>
@@ -84,6 +92,13 @@ export function ERPProvider({ children }) {
       .reduce((s, c) => s + c.valor, 0);
     const valorEstoque = produtos.reduce((s, p) => s + p.custo * p.quantidade, 0);
     const estoqueBaixo = produtos.filter((p) => p.quantidade <= p.estoqueMinimo).length;
+    const pedidosAndamento = pedidos.filter(
+      (p) => p.status !== 'entregue' && p.status !== 'cancelado'
+    ).length;
+    const pedidosEntregues = pedidos.filter((p) => p.status === 'entregue').length;
+    const folha = funcionarios
+      .filter((f) => f.status === 'ativo')
+      .reduce((s, f) => s + f.salario, 0);
 
     return {
       recebido,
@@ -95,8 +110,14 @@ export function ERPProvider({ children }) {
       estoqueBaixo,
       totalClientes: clientes.filter((c) => c.status === 'ativo').length,
       totalVendas: vendas.filter((v) => v.status !== 'cancelado').length,
+      totalProdutos: produtos.length,
+      produtosEmFalta: produtos.filter((p) => p.quantidade <= 0).length,
+      pedidosAndamento,
+      pedidosEntregues,
+      totalFuncionarios: funcionarios.filter((f) => f.status === 'ativo').length,
+      folha,
     };
-  }, [contas, produtos, clientes, vendas]);
+  }, [contas, produtos, clientes, vendas, pedidos, funcionarios]);
 
   const value = {
     clientes,
@@ -105,6 +126,10 @@ export function ERPProvider({ children }) {
     vendas,
     contas,
     historico,
+    pedidos,
+    funcionarios,
+    metas,
+    eventos,
     indicadores,
     salvarCliente: upsert(setClientes, 'c'),
     removerCliente: remover(setClientes),
@@ -114,6 +139,14 @@ export function ERPProvider({ children }) {
     removerProduto: remover(setProdutos),
     salvarConta: upsert(setContas, 't'),
     removerConta: remover(setContas),
+    salvarPedido: upsert(setPedidos, 'pd'),
+    removerPedido: remover(setPedidos),
+    salvarFuncionario: upsert(setFuncionarios, 'e'),
+    removerFuncionario: remover(setFuncionarios),
+    salvarMeta: upsert(setMetas, 'm'),
+    removerMeta: remover(setMetas),
+    salvarEvento: upsert(setEventos, 'ag'),
+    removerEvento: remover(setEventos),
     salvarVenda,
     quitarConta,
   };

@@ -11,6 +11,14 @@ const cores = {
   esgotado: 'bg-rose-50 text-rose-700 ring-rose-600/20',
   receber: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
   pagar: 'bg-rose-50 text-rose-700 ring-rose-600/20',
+  // Pedidos
+  recebido: 'bg-slate-100 text-slate-600 ring-slate-500/20',
+  separacao: 'bg-amber-50 text-amber-700 ring-amber-600/20',
+  enviado: 'bg-brand-50 text-brand-700 ring-brand-600/20',
+  entregue: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
+  // Funcionários
+  afastado: 'bg-amber-50 text-amber-700 ring-amber-600/20',
+  estornado: 'bg-slate-100 text-slate-500 ring-slate-500/20',
 };
 
 const rotulos = {
