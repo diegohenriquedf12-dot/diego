@@ -42,15 +42,10 @@ jobs:
         run: npm ci
 
       - name: Build
+        # As credenciais do Supabase vêm de erp-pme/.env.production (a chave
+        # anon é pública por design). Para sobrescrever sem commitar, defina
+        # VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY como variáveis de ambiente.
         run: npm run build
-        env:
-          # Conecta o back-end Supabase no site publicado.
-          # Defina em Settings → Secrets and variables → Actions:
-          #   Variable  VITE_SUPABASE_URL
-          #   Secret    VITE_SUPABASE_ANON_KEY
-          # Se ficarem vazios, o app cai no fallback localStorage.
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
