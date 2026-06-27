@@ -301,11 +301,37 @@ export function ERPProvider({ children }) {
       .filter((c) => !existentes.has(c.id));
 
     if (aCriar.length) {
-      setContas((lista) => [...aCriar, ...lista]);
+      setContas((lista) => {
+        const ids = new Set(lista.map((c) => c.id));
+        const novas = aCriar.filter((c) => !ids.has(c.id));
+        return novas.length ? [...novas, ...lista] : lista;
+      });
       aCriar.forEach((c) => sincronizar('contas', c));
     }
     return aCriar.length;
   };
+
+  // Lançamento AUTOMÁTICO das despesas fixas no mês corrente.
+  // Roda uma vez por mês (trava em localStorage) assim que houver alguma
+  // despesa fixa ativa carregada. Continua valendo o botão manual.
+  useEffect(() => {
+    if (somenteLeitura) return;
+    const ym = new Date().toISOString().slice(0, 7);
+    const flag = `erp:despesasfixas:auto:${ym}`;
+    try {
+      if (localStorage.getItem(flag)) return;
+    } catch {
+      return;
+    }
+    if (!despesasFixas.some((f) => f.status !== 'inativo')) return;
+    lancarDespesasFixasNoMes(ym);
+    try {
+      localStorage.setItem(flag, '1');
+    } catch {
+      /* ignora */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [despesasFixas, somenteLeitura]);
 
   // ---- Indicadores derivados ----
   const indicadores = useMemo(() => {
