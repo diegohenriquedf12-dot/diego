@@ -57,7 +57,8 @@ export function ERPProvider({ children }) {
     supabase
       .from(tabela)
       .upsert({ id: registro.id, dados: registro, atualizado_em: new Date().toISOString() })
-      .then(({ error }) => error && console.warn(`Supabase upsert ${tabela}:`, error.message));
+      .then(({ error }) => error && console.warn(`Supabase upsert ${tabela}:`, error.message))
+      .catch((e) => console.warn(`Supabase upsert ${tabela}:`, e?.message || e));
   };
   const removerRemoto = (tabela, id) => {
     if (!supabaseAtivo) return;
@@ -65,7 +66,8 @@ export function ERPProvider({ children }) {
       .from(tabela)
       .delete()
       .eq('id', id)
-      .then(({ error }) => error && console.warn(`Supabase delete ${tabela}:`, error.message));
+      .then(({ error }) => error && console.warn(`Supabase delete ${tabela}:`, error.message))
+      .catch((e) => console.warn(`Supabase delete ${tabela}:`, e?.message || e));
   };
 
   // Ao iniciar com Supabase ativo, carrega cada tabela e substitui o cache local.
@@ -84,11 +86,19 @@ export function ERPProvider({ children }) {
     };
     (async () => {
       for (const [tabela, set] of Object.entries(setters)) {
-        const { data, error } = await supabase
-          .from(tabela)
-          .select('id,dados')
-          .order('atualizado_em', { ascending: false });
-        if (!error && data) set(data.map((r) => ({ id: r.id, ...r.dados })));
+        try {
+          const { data, error } = await supabase
+            .from(tabela)
+            .select('id,dados')
+            .order('atualizado_em', { ascending: false });
+          if (error) {
+            console.warn(`Supabase load ${tabela}:`, error.message);
+            continue;
+          }
+          if (data) set(data.map((r) => ({ id: r.id, ...r.dados })));
+        } catch (e) {
+          console.warn(`Supabase load ${tabela}:`, e?.message || e);
+        }
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps

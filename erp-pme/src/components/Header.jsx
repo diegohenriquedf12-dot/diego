@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Menu, Search, Bell, Clock, Moon, Sun } from 'lucide-react';
+import { Menu, Search, Bell, Clock, Moon, Sun, Cloud, HardDrive } from 'lucide-react';
+import { supabaseAtivo } from '../lib/supabase';
 
 export default function Header({ titulo, onAbrirMenu, tema = 'dark', onAlternarTema }) {
   const [agora, setAgora] = useState(new Date());
@@ -34,8 +35,19 @@ export default function Header({ titulo, onAbrirMenu, tema = 'dark', onAlternarT
         />
       </div>
 
+      {/* Indicador de back-end (nuvem x local) */}
+      <span
+        className={`ml-auto hidden items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium sm:flex lg:ml-0 ${
+          supabaseAtivo ? 'border-pos/30 bg-pos/10 text-pos' : 'border-line bg-card2 text-muted'
+        }`}
+        title={supabaseAtivo ? 'Conectado ao back-end (Supabase)' : 'Dados salvos localmente neste navegador'}
+      >
+        {supabaseAtivo ? <Cloud size={14} /> : <HardDrive size={14} />}
+        {supabaseAtivo ? 'Nuvem' : 'Local'}
+      </span>
+
       {/* Relógio automático */}
-      <div className="ml-auto hidden items-center gap-2 rounded-lg border border-line bg-card2 px-3 py-1.5 text-xs font-medium text-muted md:flex lg:ml-0">
+      <div className="hidden items-center gap-2 rounded-lg border border-line bg-card2 px-3 py-1.5 text-xs font-medium text-muted md:flex">
         <Clock size={14} className="text-accent" />
         <span className="capitalize">{data}</span>
         <span className="tabular-nums text-ink">{hora}</span>
