@@ -25,7 +25,7 @@ const hojeISO = new Date().toISOString().slice(0, 10);
 const vazio = { data: hojeISO, hora: '', titulo: '', tipo: 'reuniao' };
 
 export default function Agenda({ irPara }) {
-  const { eventos, salvarEvento, removerEvento } = useERP();
+  const { eventos, salvarEvento, removerEvento, somenteLeitura } = useERP();
   const [ref, setRef] = useState(() => { const d = new Date(); return { ano: d.getFullYear(), mes: d.getMonth() }; });
   const [modal, setModal] = useState(false);
   const [form, setForm] = useState(vazio);
@@ -69,7 +69,9 @@ export default function Agenda({ irPara }) {
         acao={
           <div className="flex gap-2">
             <Button variant="secondary" onClick={() => irPara('dashboard')}><ArrowLeft size={16} /> Dashboard</Button>
-            <Button onClick={() => { setForm(vazio); setModal(true); }}><Plus size={16} /> Novo evento</Button>
+            {!somenteLeitura && (
+              <Button onClick={() => { setForm(vazio); setModal(true); }}><Plus size={16} /> Novo evento</Button>
+            )}
           </div>
         }
       />
@@ -136,7 +138,9 @@ export default function Agenda({ irPara }) {
                     <p className="truncate text-sm font-medium text-ink">{e.titulo}</p>
                     <p className="text-xs text-muted">{dataBR(e.data)}{e.hora && ` · ${e.hora}`}</p>
                   </div>
-                  <button onClick={() => removerEvento(e.id)} className="rounded-lg p-1.5 text-muted opacity-0 transition-opacity hover:bg-rose-50 hover:text-rose-500 group-hover:opacity-100" aria-label="Excluir"><Trash2 size={14} /></button>
+                  {!somenteLeitura && (
+                    <button onClick={() => removerEvento(e.id)} className="rounded-lg p-1.5 text-muted opacity-0 transition-opacity hover:bg-rose-50 hover:text-rose-500 group-hover:opacity-100" aria-label="Excluir"><Trash2 size={14} /></button>
+                  )}
                 </li>
               );
             })}

@@ -76,7 +76,7 @@ const vazioForm = {
 };
 
 export default function Pedidos({ irPara }) {
-  const { pedidos, clientes, salvarPedido, removerPedido } = useERP();
+  const { pedidos, clientes, salvarPedido, removerPedido, somenteLeitura } = useERP();
   const [busca, setBusca] = useState('');
   const [filtro, setFiltro] = useState('todos');
   const [modal, setModal] = useState(false);
@@ -127,9 +127,11 @@ export default function Pedidos({ irPara }) {
             <Button variant="secondary" onClick={() => irPara('dashboard')}>
               <ArrowLeft size={16} /> Dashboard
             </Button>
-            <Button onClick={abrirNovo}>
-              <Plus size={16} /> Novo pedido
-            </Button>
+            {!somenteLeitura && (
+              <Button onClick={abrirNovo}>
+                <Plus size={16} /> Novo pedido
+              </Button>
+            )}
           </div>
         }
       />
@@ -191,21 +193,23 @@ export default function Pedidos({ irPara }) {
                 <p className="mt-1 font-mono text-[11px] text-muted">Rastreio: {p.rastreio}</p>
               )}
 
-              <div className="mt-3 flex gap-2">
-                <Button
-                  variant="secondary"
-                  className="flex-1"
-                  onClick={() => {
-                    setForm(p);
-                    setModal(true);
-                  }}
-                >
-                  Editar
-                </Button>
-                <Button variant="danger" onClick={() => removerPedido(p.id)} aria-label="Excluir">
-                  <XCircle size={16} />
-                </Button>
-              </div>
+              {!somenteLeitura && (
+                <div className="mt-3 flex gap-2">
+                  <Button
+                    variant="secondary"
+                    className="flex-1"
+                    onClick={() => {
+                      setForm(p);
+                      setModal(true);
+                    }}
+                  >
+                    Editar
+                  </Button>
+                  <Button variant="danger" onClick={() => removerPedido(p.id)} aria-label="Excluir">
+                    <XCircle size={16} />
+                  </Button>
+                </div>
+              )}
             </Card>
           ))}
         </div>

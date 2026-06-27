@@ -12,7 +12,7 @@ import { Campo, Select } from '../components/ui/Field';
 const vendaVazia = () => ({ clienteId: '', data: hoje(), itens: [], status: 'pago', pagamento: 'PIX' });
 
 export default function Vendas() {
-  const { vendas, clientes, produtos, salvarVenda } = useERP();
+  const { vendas, clientes, produtos, salvarVenda, somenteLeitura } = useERP();
   const [busca, setBusca] = useState('');
   const [modal, setModal] = useState(null);
   const [produtoSel, setProdutoSel] = useState('');
@@ -61,7 +61,7 @@ export default function Vendas() {
       <PageHeader
         titulo="Vendas"
         descricao={`${vendas.filter((v) => v.status !== 'cancelado').length} pedidos válidos`}
-        acao={<Button onClick={() => setModal(vendaVazia())}><Plus size={16} /> Nova venda</Button>}
+        acao={!somenteLeitura && <Button onClick={() => setModal(vendaVazia())}><Plus size={16} /> Nova venda</Button>}
       />
 
       <Card>

@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Menu, Search, Bell, Clock, Moon, Sun, Cloud, HardDrive } from 'lucide-react';
+import { Menu, Search, Bell, Clock, Moon, Sun, Cloud, HardDrive, LogOut, ShieldCheck, Eye } from 'lucide-react';
 import { supabaseAtivo } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 
 export default function Header({ titulo, onAbrirMenu, tema = 'dark', onAlternarTema }) {
+  const { usuario, ehAdmin, sair } = useAuth();
   const [agora, setAgora] = useState(new Date());
 
   // Relógio em tempo real (data e hora automáticas)
@@ -72,6 +74,28 @@ export default function Header({ titulo, onAbrirMenu, tema = 'dark', onAlternarT
         <Bell size={20} />
         <span className="absolute right-1.5 top-1.5 h-2 w-2 animate-pulse-alert rounded-full bg-neg ring-2 ring-canvas" />
       </button>
+
+      {/* Perfil do usuário + sair */}
+      <div className="flex items-center gap-2 border-l border-line pl-2 sm:pl-3">
+        <span
+          className={`hidden items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium sm:flex ${
+            ehAdmin ? 'bg-accent/10 text-accent' : 'bg-amber-500/10 text-amber-500'
+          }`}
+          title={ehAdmin ? 'Administrador geral' : 'Convidado (somente leitura)'}
+        >
+          {ehAdmin ? <ShieldCheck size={14} /> : <Eye size={14} />}
+          {usuario?.nome}
+        </span>
+        <button
+          onClick={sair}
+          className="flex items-center gap-1.5 rounded-lg border border-line px-2.5 py-2 text-muted transition-colors hover:bg-neg/10 hover:text-neg"
+          title="Sair"
+          aria-label="Sair"
+        >
+          <LogOut size={16} />
+          <span className="hidden text-xs font-medium md:inline">Sair</span>
+        </button>
+      </div>
     </header>
   );
 }

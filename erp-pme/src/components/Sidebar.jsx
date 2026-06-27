@@ -14,6 +14,7 @@ import {
   X,
   Sparkles,
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 // Navegação agrupada — a lista plana `modulos` é derivada para lookup de título
 export const grupos = [
@@ -52,6 +53,13 @@ export const grupos = [
 export const modulos = grupos.flatMap((g) => g.itens);
 
 export default function Sidebar({ ativo, onNavegar, aberto, onFechar }) {
+  const { usuario, ehAdmin } = useAuth();
+  const iniciais = (usuario?.nome || '?')
+    .split(' ')
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
   return (
     <>
       {aberto && (
@@ -115,11 +123,11 @@ export default function Sidebar({ ativo, onNavegar, aberto, onFechar }) {
         <div className="border-t border-line p-4">
           <div className="flex items-center gap-3">
             <span className="grid h-9 w-9 place-items-center rounded-full bg-accent text-sm font-semibold text-accent-ink">
-              DH
+              {iniciais}
             </span>
             <div className="leading-tight">
-              <p className="text-sm font-medium text-ink">Diego Henrique</p>
-              <p className="text-[11px] text-muted">Administrador</p>
+              <p className="text-sm font-medium text-ink">{usuario?.nome || 'Visitante'}</p>
+              <p className="text-[11px] text-muted">{ehAdmin ? 'Administrador geral' : 'Convidado'}</p>
             </div>
           </div>
         </div>

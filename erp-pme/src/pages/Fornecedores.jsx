@@ -12,7 +12,7 @@ const categorias = ['Matéria-prima', 'Embalagens', 'Componentes', 'Serviços', 
 const vazio = { nome: '', documento: '', email: '', telefone: '', categoria: 'Matéria-prima', status: 'ativo', prazo: 30 };
 
 export default function Fornecedores() {
-  const { fornecedores, salvarFornecedor, removerFornecedor } = useERP();
+  const { fornecedores, salvarFornecedor, removerFornecedor, somenteLeitura } = useERP();
   const [busca, setBusca] = useState('');
   const [modal, setModal] = useState(null);
 
@@ -38,12 +38,13 @@ export default function Fornecedores() {
     ) },
     { chave: 'prazo', titulo: 'Prazo pgto.', render: (f) => `${f.prazo} dias` },
     { chave: 'status', titulo: 'Status', render: (f) => <Badge status={f.status} /> },
-    { chave: 'acoes', titulo: '', alinhar: 'right', render: (f) => (
-      <div className="flex justify-end gap-1">
-        <button onClick={() => setModal(f)} className="rounded-lg p-1.5 text-muted hover:bg-card2 hover:text-ink" aria-label="Editar"><Pencil size={15} /></button>
-        <button onClick={() => removerFornecedor(f.id)} className="rounded-lg p-1.5 text-muted hover:bg-rose-50 hover:text-rose-600" aria-label="Excluir"><Trash2 size={15} /></button>
-      </div>
-    ) },
+    { chave: 'acoes', titulo: '', alinhar: 'right', render: (f) =>
+      somenteLeitura ? null : (
+        <div className="flex justify-end gap-1">
+          <button onClick={() => setModal(f)} className="rounded-lg p-1.5 text-muted hover:bg-card2 hover:text-ink" aria-label="Editar"><Pencil size={15} /></button>
+          <button onClick={() => removerFornecedor(f.id)} className="rounded-lg p-1.5 text-muted hover:bg-rose-50 hover:text-rose-600" aria-label="Excluir"><Trash2 size={15} /></button>
+        </div>
+      ) },
   ];
 
   return (
@@ -51,7 +52,7 @@ export default function Fornecedores() {
       <PageHeader
         titulo="Fornecedores"
         descricao={`${fornecedores.length} cadastrados`}
-        acao={<Button onClick={() => setModal({ ...vazio })}><Plus size={16} /> Novo fornecedor</Button>}
+        acao={!somenteLeitura && <Button onClick={() => setModal({ ...vazio })}><Plus size={16} /> Novo fornecedor</Button>}
       />
       <Card>
         <div className="border-b border-line p-4">

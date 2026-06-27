@@ -13,6 +13,7 @@ import {
 } from '../data/seed';
 import { novoId, totalVenda } from '../utils/format';
 import { supabase, supabaseAtivo } from '../lib/supabase';
+import { useAuth } from './AuthContext';
 
 const ERPContext = createContext(null);
 
@@ -39,6 +40,7 @@ function useColecaoPersistida(chave, inicial) {
 }
 
 export function ERPProvider({ children }) {
+  const { somenteLeitura } = useAuth();
   const [clientes, setClientes] = useColecaoPersistida('clientes', clientesSeed);
   const [fornecedores, setFornecedores] = useColecaoPersistida('fornecedores', fornecedoresSeed);
   const [produtos, setProdutos] = useColecaoPersistida('produtos', produtosSeed);
@@ -105,7 +107,9 @@ export function ERPProvider({ children }) {
   }, []);
 
   // ---- CRUD genérico por coleção (estado local + Supabase) ----
+  // Convidado (somente leitura) não pode alterar dados.
   const upsert = (setter, prefixo, tabela) => (registro) => {
+    if (somenteLeitura) return null;
     const completo = registro.id ? registro : { ...registro, id: novoId(prefixo) };
     setter((lista) =>
       registro.id
@@ -117,12 +121,14 @@ export function ERPProvider({ children }) {
   };
 
   const remover = (setter, tabela) => (id) => {
+    if (somenteLeitura) return;
     setter((lista) => lista.filter((r) => r.id !== id));
     removerRemoto(tabela, id);
   };
 
   // ---- Vendas: baixa de estoque + lançamento financeiro ----
   const salvarVenda = (venda) => {
+    if (somenteLeitura) return;
     const total = totalVenda(venda);
     const id = venda.id || 'v' + Math.floor(1005 + Math.random() * 8000);
     const completa = { ...venda, id, total };
@@ -159,6 +165,7 @@ export function ERPProvider({ children }) {
   };
 
   const quitarConta = (id) => {
+    if (somenteLeitura) return;
     setContas((lista) => lista.map((c) => (c.id === id ? { ...c, status: 'pago' } : c)));
     const conta = contas.find((c) => c.id === id);
     if (conta) sincronizar('contas', { ...conta, status: 'pago' });
@@ -219,6 +226,7 @@ export function ERPProvider({ children }) {
     metas,
     eventos,
     indicadores,
+    somenteLeitura,
     backendAtivo: supabaseAtivo,
     salvarCliente: upsert(setClientes, 'c', 'clientes'),
     removerCliente: remover(setClientes, 'clientes'),
