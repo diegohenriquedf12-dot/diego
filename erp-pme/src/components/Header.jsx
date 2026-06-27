@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Menu, Search, Bell, Clock } from 'lucide-react';
+import { Menu, Search, Bell, Clock, Moon, Sun } from 'lucide-react';
 
-export default function Header({ titulo, onAbrirMenu }) {
+export default function Header({ titulo, onAbrirMenu, fundo = 'black', onAlternarFundo }) {
   const [agora, setAgora] = useState(new Date());
 
   // Relógio em tempo real (data e hora automáticas)
@@ -40,6 +40,21 @@ export default function Header({ titulo, onAbrirMenu }) {
         <span className="capitalize">{data}</span>
         <span className="tabular-nums text-slate-900">{hora}</span>
       </div>
+
+      {/* Alterna o plano de fundo entre preto e branco */}
+      {onAlternarFundo && (
+        <button
+          onClick={onAlternarFundo}
+          className="flex items-center gap-2 rounded-lg border border-slate-200 px-2.5 py-2 text-slate-600 transition-colors hover:bg-slate-100"
+          title={fundo === 'black' ? 'Fundo branco' : 'Fundo preto'}
+          aria-label="Alternar plano de fundo"
+        >
+          {fundo === 'black' ? <Sun size={18} /> : <Moon size={18} />}
+          <span className="hidden text-xs font-medium sm:inline">
+            {fundo === 'black' ? 'Branco' : 'Preto'}
+          </span>
+        </button>
+      )}
 
       <button className="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100">
         <Bell size={20} />
