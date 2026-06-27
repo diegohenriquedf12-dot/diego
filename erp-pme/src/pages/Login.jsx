@@ -44,7 +44,7 @@ export default function Login({ tema = 'dark', onAlternarTema }) {
           <span className="mb-3 grid h-14 w-14 place-items-center rounded-2xl bg-accent text-accent-ink shadow-lift">
             <Sparkles size={26} />
           </span>
-          <h1 className="text-2xl font-bold tracking-tight">Gestor Siqueira</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Gestão Siqueira</h1>
           <p className="mt-1 text-sm text-muted">Sistema empresarial · escolha como entrar</p>
         </div>
 

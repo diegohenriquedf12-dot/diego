@@ -77,7 +77,7 @@ export default function Sidebar({ ativo, onNavegar, aberto, onFechar }) {
               <Sparkles size={18} />
             </span>
             <div className="leading-tight">
-              <p className="text-sm font-bold text-ink">Gestor Siqueira</p>
+              <p className="text-sm font-bold text-ink">Gestão Siqueira</p>
               <p className="text-[11px] text-muted">Sistema empresarial</p>
             </div>
           </div>
