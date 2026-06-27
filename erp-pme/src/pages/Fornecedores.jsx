@@ -57,7 +57,7 @@ export default function Fornecedores() {
         <div className="border-b border-line p-4">
           <div className="relative max-w-sm">
             <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-            <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar fornecedor..." className="w-full rounded-lg border border-line bg-card2 py-2 pl-9 pr-3 text-sm focus:border-emerald-500 focus:bg-card focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
+            <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar fornecedor..." className="w-full rounded-lg border border-line bg-card2 py-2 pl-9 pr-3 text-sm focus:border-accent focus:bg-card focus:outline-none focus:ring-2 focus:ring-accent/25" />
           </div>
         </div>
         <DataTable colunas={colunas} dados={filtrados} vazio={<EmptyState icone={Truck} titulo="Nenhum fornecedor encontrado" descricao="Cadastre fornecedores para controlar compras e prazos." />} />

@@ -68,7 +68,7 @@ export default function Vendas() {
         <div className="border-b border-line p-4">
           <div className="relative max-w-sm">
             <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-            <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar por cliente ou nº do pedido..." className="w-full rounded-lg border border-line bg-card2 py-2 pl-9 pr-3 text-sm focus:border-emerald-500 focus:bg-card focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
+            <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar por cliente ou nº do pedido..." className="w-full rounded-lg border border-line bg-card2 py-2 pl-9 pr-3 text-sm focus:border-accent focus:bg-card focus:outline-none focus:ring-2 focus:ring-accent/25" />
           </div>
         </div>
         <DataTable colunas={colunas} dados={filtradas} vazio={<EmptyState icone={ShoppingCart} titulo="Nenhuma venda registrada" descricao="Registre vendas para acompanhar faturamento e baixar o estoque automaticamente." />} />
@@ -125,7 +125,7 @@ export default function Vendas() {
                         <p className="truncate text-sm font-medium text-ink">{prod?.nome}</p>
                         <p className="text-xs text-muted">{moeda(i.preco)} · disp. {prod?.quantidade}</p>
                       </div>
-                      <input type="number" min="1" value={i.qtd} onChange={(e) => atualizarQtd(i.produtoId, e.target.value)} className="w-16 rounded-md border border-line px-2 py-1 text-center text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
+                      <input type="number" min="1" value={i.qtd} onChange={(e) => atualizarQtd(i.produtoId, e.target.value)} className="w-16 rounded-md border border-line px-2 py-1 text-center text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25" />
                       <span className="w-24 text-right text-sm font-semibold text-ink">{moeda(i.qtd * i.preco)}</span>
                       <button onClick={() => removerItem(i.produtoId)} className="rounded-md p-1 text-muted hover:bg-rose-50 hover:text-rose-600"><X size={15} /></button>
                     </div>
@@ -136,7 +136,7 @@ export default function Vendas() {
 
             <div className="grid grid-cols-2 gap-4">
               <Campo label="Data">
-                <input type="date" value={modal.data} onChange={(e) => setModal({ ...modal, data: e.target.value })} className="w-full rounded-lg border border-line px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
+                <input type="date" value={modal.data} onChange={(e) => setModal({ ...modal, data: e.target.value })} className="w-full rounded-lg border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25" />
               </Campo>
               <Campo label="Situação">
                 <Select value={modal.status} onChange={(e) => setModal({ ...modal, status: e.target.value })}>

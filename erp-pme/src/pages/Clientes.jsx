@@ -72,7 +72,7 @@ export default function Clientes() {
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               placeholder="Buscar por nome, documento ou cidade..."
-              className="w-full rounded-lg border border-line bg-card2 py-2 pl-9 pr-3 text-sm focus:border-emerald-500 focus:bg-card focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              className="w-full rounded-lg border border-line bg-card2 py-2 pl-9 pr-3 text-sm focus:border-accent focus:bg-card focus:outline-none focus:ring-2 focus:ring-accent/25"
             />
           </div>
         </div>
