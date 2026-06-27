@@ -10,8 +10,7 @@ import {
   funcionariosSeed,
   metasSeed,
   eventosSeed,
-  contasImportadasPdf,
-  IMPORT_CONTAS_PDF_FLAG,
+  LIMPEZA_FLAG,
 } from '../data/seed';
 import { novoId, totalVenda } from '../utils/format';
 import { supabase, supabaseAtivo } from '../lib/supabase';
@@ -108,30 +107,31 @@ export function ERPProvider({ children }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Migração única (roda uma vez por versão da flag):
-  //  1) categoria "Fornecedores" -> "Compras";
-  //  2) relança os valores dos PDFs de venda (sobrescreve por id).
+  // Limpeza única (roda uma vez por versão da flag):
+  //  1) remove a operação "Compras" (contas da categoria Compras / importadas);
+  //  2) zera a área de Vendas. Reflete no cache local e no Supabase.
   useEffect(() => {
     try {
-      if (localStorage.getItem(IMPORT_CONTAS_PDF_FLAG)) return;
+      if (localStorage.getItem(LIMPEZA_FLAG)) return;
     } catch {
       return;
     }
-    const porId = new Map(contas.map((c) => [c.id, c]));
-    for (const [id, c] of porId) {
-      if (c.categoria === 'Fornecedores') porId.set(id, { ...c, categoria: 'Compras' });
+    const comprasIds = contas
+      .filter((c) => c.categoria === 'Compras' || (typeof c.id === 'string' && c.id.startsWith('cp')))
+      .map((c) => c.id);
+    if (comprasIds.length) {
+      setContas((lista) => lista.filter((c) => !comprasIds.includes(c.id)));
+      comprasIds.forEach((id) => removerRemoto('contas', id));
     }
-    contasImportadasPdf.forEach((c) => porId.set(c.id, { ...c }));
-    setContas(Array.from(porId.values()));
 
-    // sincroniza com o Supabase as contas alteradas/relançadas
-    const recategorizadas = contas
-      .filter((c) => c.categoria === 'Fornecedores')
-      .map((c) => ({ ...c, categoria: 'Compras' }));
-    [...contasImportadasPdf, ...recategorizadas].forEach((c) => sincronizar('contas', c));
+    const vendaIds = vendas.map((v) => v.id);
+    if (vendaIds.length) {
+      setVendas([]);
+      vendaIds.forEach((id) => removerRemoto('vendas', id));
+    }
 
     try {
-      localStorage.setItem(IMPORT_CONTAS_PDF_FLAG, '1');
+      localStorage.setItem(LIMPEZA_FLAG, '1');
     } catch {
       /* ignora */
     }
@@ -185,7 +185,7 @@ export function ERPProvider({ children }) {
       const conta = {
         id: novoId('t'),
         tipo: 'receber',
-        descricao: `Venda #${id.replace('v', '')} — ${cliente?.nome || 'Cliente'}`,
+        descricao: `Venda #${id.replace('v', '')} — ${cliente?.nome || venda.clienteNome || 'Cliente'}`,
         valor: total,
         vencimento: venda.data,
         status: venda.status === 'pago' ? 'pago' : 'pendente',
