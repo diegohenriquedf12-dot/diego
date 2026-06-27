@@ -24,7 +24,7 @@ const tooltipBox = {
 const paleta = ['#FF7A00', '#22C55E', '#3B82F6', '#EF4444', '#8B5CF6', '#FACC15'];
 
 export default function Dashboard({ irPara }) {
-  const { indicadores, historico, vendas, produtos, clientes, contas, metas } = useERP();
+  const { indicadores, historico, vendas, produtos, clientes, contas, metas, atualDaMeta } = useERP();
 
   const ultimasVendas = vendas.slice(0, 5);
   const alertas = produtos.filter((p) => p.quantidade <= p.estoqueMinimo);
@@ -53,7 +53,10 @@ export default function Dashboard({ irPara }) {
   );
 
   const metasResumo = metas
-    .map((m) => ({ ...m, pct: m.alvo > 0 ? Math.round((m.atual / m.alvo) * 100) : 0 }))
+    .map((m) => {
+      const atual = atualDaMeta(m);
+      return { ...m, atual, pct: m.alvo > 0 ? Math.round((atual / m.alvo) * 100) : 0 };
+    })
     .slice(0, 4);
 
   return (

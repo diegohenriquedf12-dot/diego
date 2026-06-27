@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Target, Plus, Trophy, ArrowLeft, Trash2, CheckCircle2 } from 'lucide-react';
+import { Target, Plus, Trophy, ArrowLeft, Trash2, CheckCircle2, RefreshCw } from 'lucide-react';
 import { useERP } from '../context/ERPContext';
 import { moeda } from '../utils/format';
 import { Card, PageHeader } from '../components/ui/Layout';
@@ -11,16 +11,30 @@ import AnimatedNumber from '../components/ui/AnimatedNumber';
 
 const fmt = (m) => (m.tipo === 'moeda' ? (n) => moeda(n) : (n) => Math.round(n).toLocaleString('pt-BR'));
 
-const vazio = { titulo: '', tipo: 'numero', atual: '', alvo: '', tom: 'blue' };
+// Fontes automáticas: o "atual" vem dos dados do mês.
+const fontes = {
+  manual: { rotulo: 'Manual (digitado)', tipo: 'numero' },
+  receita: { rotulo: 'Receita do mês (entradas)', tipo: 'moeda' },
+  vendas: { rotulo: 'Vendas do mês (quantidade)', tipo: 'numero' },
+  lucro: { rotulo: 'Lucro do mês (entradas − saídas)', tipo: 'moeda' },
+  despesas: { rotulo: 'Despesas do mês (saídas)', tipo: 'moeda' },
+};
+
+const vazio = { titulo: '', tipo: 'numero', atual: '', alvo: '', tom: 'blue', fonte: 'manual' };
 
 export default function Metas({ irPara }) {
-  const { metas, salvarMeta, removerMeta, somenteLeitura } = useERP();
+  const { metas, salvarMeta, removerMeta, somenteLeitura, metricasMes } = useERP();
   const [modal, setModal] = useState(false);
   const [form, setForm] = useState(vazio);
 
   const comPct = useMemo(
-    () => metas.map((m) => ({ ...m, pct: m.alvo > 0 ? (m.atual / m.alvo) * 100 : 0 })),
-    [metas]
+    () =>
+      metas.map((m) => {
+        const auto = m.fonte && m.fonte !== 'manual' && metricasMes[m.fonte] != null;
+        const atual = auto ? metricasMes[m.fonte] : Number(m.atual) || 0;
+        return { ...m, atual, auto, pct: m.alvo > 0 ? (atual / m.alvo) * 100 : 0 };
+      }),
+    [metas, metricasMes]
   );
   const atingidas = comPct.filter((m) => m.pct >= 100).length;
   const mediaGeral = comPct.length
@@ -91,6 +105,11 @@ export default function Metas({ irPara }) {
               <div className="flex items-center gap-2 text-muted">
                 <Target size={15} />
                 <h3 className="text-sm font-semibold text-ink">{m.titulo}</h3>
+                {m.auto && (
+                  <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold text-accent">
+                    <RefreshCw size={10} /> Automática
+                  </span>
+                )}
               </div>
 
               <p className="mt-3 text-2xl font-bold tracking-tight text-ink tabular-nums">
@@ -131,17 +150,47 @@ export default function Metas({ irPara }) {
         }
       >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Campo label="Título">
-            <Input value={form.titulo} onChange={(e) => setForm({ ...form, titulo: e.target.value })} className="sm:col-span-2" />
+          <div className="sm:col-span-2">
+            <Campo label="Título">
+              <Input value={form.titulo} onChange={(e) => setForm({ ...form, titulo: e.target.value })} />
+            </Campo>
+          </div>
+          <div className="sm:col-span-2">
+            <Campo label="Atualização do valor atual">
+              <Select
+                value={form.fonte || 'manual'}
+                onChange={(e) => {
+                  const fonte = e.target.value;
+                  setForm({ ...form, fonte, tipo: fontes[fonte].tipo });
+                }}
+              >
+                {Object.entries(fontes).map(([k, f]) => (
+                  <option key={k} value={k}>{f.rotulo}</option>
+                ))}
+              </Select>
+            </Campo>
+          </div>
+
+          {form.fonte && form.fonte !== 'manual' ? (
+            <div className="sm:col-span-2 rounded-lg border border-line bg-card2 px-3 py-2 text-xs text-muted">
+              <RefreshCw size={12} className="mr-1 inline" />
+              Valor atual automático:{' '}
+              <span className="font-semibold text-ink">
+                {fontes[form.fonte].tipo === 'moeda'
+                  ? moeda(metricasMes[form.fonte] || 0)
+                  : Math.round(metricasMes[form.fonte] || 0).toLocaleString('pt-BR')}
+              </span>{' '}
+              — atualiza conforme vendas, entradas e saídas do mês.
+            </div>
+          ) : (
+            <Campo label="Atual">
+              <Input type="number" step="0.01" value={form.atual} onChange={(e) => setForm({ ...form, atual: e.target.value })} />
+            </Campo>
+          )}
+
+          <Campo label={`Meta (alvo)${form.fonte && form.fonte !== 'manual' && fontes[form.fonte].tipo === 'moeda' ? ' em R$' : ''}`}>
+            <Input type="number" step="0.01" value={form.alvo} onChange={(e) => setForm({ ...form, alvo: e.target.value })} />
           </Campo>
-          <Campo label="Tipo">
-            <Select value={form.tipo} onChange={(e) => setForm({ ...form, tipo: e.target.value })}>
-              <option value="numero">Número</option>
-              <option value="moeda">Valor (R$)</option>
-            </Select>
-          </Campo>
-          <Campo label="Atual"><Input type="number" step="0.01" value={form.atual} onChange={(e) => setForm({ ...form, atual: e.target.value })} /></Campo>
-          <Campo label="Alvo"><Input type="number" step="0.01" value={form.alvo} onChange={(e) => setForm({ ...form, alvo: e.target.value })} /></Campo>
         </div>
       </Modal>
     </div>
