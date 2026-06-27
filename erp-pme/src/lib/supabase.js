@@ -24,4 +24,5 @@ export const TABELAS = [
   'metas',
   'eventos',
   'compras',
+  'despesasfixas',
 ];

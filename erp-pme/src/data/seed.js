@@ -12,6 +12,10 @@ export const vendasSeed = [];
 
 export const contasSeed = [];
 
+// Despesas fixas (recorrentes mensais) — ex.: aluguel, salários, internet.
+// Cada uma pode ser lançada como conta a pagar do mês na própria tela.
+export const despesasFixasSeed = [];
+
 // Histórico mensal consolidado para gráficos do dashboard
 export const historicoSeed = [];
 

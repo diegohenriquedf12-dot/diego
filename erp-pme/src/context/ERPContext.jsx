@@ -5,6 +5,7 @@ import {
   produtosSeed,
   vendasSeed,
   contasSeed,
+  despesasFixasSeed,
   historicoSeed,
   pedidosSeed,
   funcionariosSeed,
@@ -56,6 +57,7 @@ export function ERPProvider({ children }) {
   const [metas, setMetas] = useColecaoPersistida('metas', metasSeed);
   const [eventos, setEventos] = useColecaoPersistida('eventos', eventosSeed);
   const [compras, setCompras] = useColecaoPersistida('compras', comprasSeed);
+  const [despesasFixas, setDespesasFixas] = useColecaoPersistida('despesasfixas', despesasFixasSeed);
 
   // ---- Sincronização com o Supabase (no-op quando não configurado) ----
   // Esquema das tabelas: id text (PK), dados jsonb, atualizado_em timestamptz.
@@ -91,6 +93,7 @@ export function ERPProvider({ children }) {
       metas: setMetas,
       eventos: setEventos,
       compras: setCompras,
+      despesasfixas: setDespesasFixas,
     };
     (async () => {
       for (const [tabela, set] of Object.entries(setters)) {
@@ -274,6 +277,36 @@ export function ERPProvider({ children }) {
     removerRemoto('contas', id);
   };
 
+  // ---- Despesas fixas (recorrentes) ----
+  // Lança as despesas fixas ativas como contas a pagar do mês informado
+  // (AAAA-MM). Idempotente: não duplica se já lançou no mesmo mês.
+  const lancarDespesasFixasNoMes = (mes) => {
+    if (somenteLeitura) return 0;
+    const ym = mes || new Date().toISOString().slice(0, 7);
+    const existentes = new Set(contas.map((c) => c.id));
+    const aCriar = despesasFixas
+      .filter((f) => f.status !== 'inativo')
+      .map((f) => {
+        const dia = String(Math.min(Math.max(Number(f.diaVencimento) || 1, 1), 28)).padStart(2, '0');
+        return {
+          id: `df${f.id}-${ym}`,
+          tipo: 'pagar',
+          descricao: `${f.descricao} (fixa)`,
+          valor: Number(f.valor) || 0,
+          vencimento: `${ym}-${dia}`,
+          status: 'pendente',
+          categoria: f.categoria || 'Despesa fixa',
+        };
+      })
+      .filter((c) => !existentes.has(c.id));
+
+    if (aCriar.length) {
+      setContas((lista) => [...aCriar, ...lista]);
+      aCriar.forEach((c) => sincronizar('contas', c));
+    }
+    return aCriar.length;
+  };
+
   // ---- Indicadores derivados ----
   const indicadores = useMemo(() => {
     const recebido = contas
@@ -359,6 +392,7 @@ export function ERPProvider({ children }) {
     metas,
     eventos,
     compras,
+    despesasFixas,
     indicadores,
     metricasMes,
     atualDaMeta,
@@ -366,6 +400,9 @@ export function ERPProvider({ children }) {
     backendAtivo: supabaseAtivo,
     salvarCompra,
     removerCompra,
+    salvarDespesaFixa: upsert(setDespesasFixas, 'fx', 'despesasfixas'),
+    removerDespesaFixa: remover(setDespesasFixas, 'despesasfixas'),
+    lancarDespesasFixasNoMes,
     salvarCliente: upsert(setClientes, 'c', 'clientes'),
     removerCliente: remover(setClientes, 'clientes'),
     salvarFornecedor: upsert(setFornecedores, 'f', 'fornecedores'),
