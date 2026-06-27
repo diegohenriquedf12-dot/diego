@@ -10,6 +10,8 @@ import {
   funcionariosSeed,
   metasSeed,
   eventosSeed,
+  contasImportadasPdf,
+  IMPORT_CONTAS_PDF_FLAG,
 } from '../data/seed';
 import { novoId, totalVenda } from '../utils/format';
 import { supabase, supabaseAtivo } from '../lib/supabase';
@@ -103,6 +105,27 @@ export function ERPProvider({ children }) {
         }
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Importação única dos PDFs de venda como contas a pagar (roda uma vez).
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(IMPORT_CONTAS_PDF_FLAG)) return;
+    } catch {
+      return;
+    }
+    const existentes = new Set(contas.map((c) => c.id));
+    const novos = contasImportadasPdf.filter((c) => !existentes.has(c.id));
+    if (novos.length) {
+      setContas((lista) => [...novos.filter((n) => !lista.some((l) => l.id === n.id)), ...lista]);
+      novos.forEach((c) => sincronizar('contas', c));
+    }
+    try {
+      localStorage.setItem(IMPORT_CONTAS_PDF_FLAG, '1');
+    } catch {
+      /* ignora */
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
