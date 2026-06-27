@@ -31,3 +31,36 @@ export const eventosSeed = [];
 // "Compras" (lançamentos importados / categoria Compras) e zera a área de
 // Vendas, tanto no cache local quanto no Supabase.
 export const LIMPEZA_FLAG = 'erp:cleanup:compras-vendas-v4';
+
+// Operação "Compras" — registros de compra (Distribuidora Siqueira Bikes),
+// importados da planilha de orçamentos de junho/2026.
+export const comprasSeed = [
+  { id: 'cmp34464', numero: '34464', fornecedor: 'Distribuidora Siqueira Bikes', data: '2026-06-26', pagamento: 'Dinheiro', valor: 282.96, status: 'pendente' },
+  { id: 'cmp34445', numero: '34445', fornecedor: 'Distribuidora Siqueira Bikes', data: '2026-06-24', pagamento: 'Dinheiro', valor: 339.14, status: 'pendente' },
+  { id: 'cmp34421', numero: '34421', fornecedor: 'Distribuidora Siqueira Bikes', data: '2026-06-22', pagamento: 'Dinheiro', valor: 662.41, status: 'pendente' },
+  { id: 'cmp34399', numero: '34399', fornecedor: 'Distribuidora Siqueira Bikes', data: '2026-06-19', pagamento: 'Dinheiro', valor: 201.31, status: 'pendente' },
+  { id: 'cmp34387', numero: '34387', fornecedor: 'Distribuidora Siqueira Bikes', data: '2026-06-18', pagamento: 'Dinheiro', valor: 318.70, status: 'pendente' },
+  { id: 'cmp34371', numero: '34371', fornecedor: 'Distribuidora Siqueira Bikes', data: '2026-06-17', pagamento: 'Dinheiro', valor: 58.49, status: 'pendente' },
+  { id: 'cmp34359', numero: '34359', fornecedor: 'Distribuidora Siqueira Bikes', data: '2026-06-16', pagamento: 'Dinheiro', valor: 101.43, status: 'pendente' },
+  { id: 'cmp34348', numero: '34348', fornecedor: 'Distribuidora Siqueira Bikes', data: '2026-06-15', pagamento: 'Dinheiro', valor: 621.62, status: 'pendente' },
+  { id: 'cmp34347', numero: '34347', fornecedor: 'Distribuidora Siqueira Bikes', data: '2026-06-15', pagamento: 'Dinheiro', valor: 118.51, status: 'pendente' },
+  { id: 'cmp34301', numero: '34301', fornecedor: 'Distribuidora Siqueira Bikes', data: '2026-06-10', pagamento: 'Dinheiro', valor: 4415.37, status: 'pendente' },
+  { id: 'cmp34260', numero: '34260', fornecedor: 'Distribuidora Siqueira Bikes', data: '2026-06-05', pagamento: 'Dinheiro', valor: 405.56, status: 'pendente' },
+  { id: 'cmp34231', numero: '34231', fornecedor: 'Distribuidora Siqueira Bikes', data: '2026-06-02', pagamento: 'Dinheiro', valor: 578.42, status: 'pendente' },
+  { id: 'cmp34229', numero: '34229', fornecedor: 'Distribuidora Siqueira Bikes', data: '2026-06-02', pagamento: 'Dinheiro', valor: 17668.78, status: 'pendente' },
+];
+
+// Contas a pagar correspondentes (mesmo id) — alimentam o Financeiro.
+export const contasCompras = comprasSeed.map((c) => ({
+  id: c.id,
+  tipo: 'pagar',
+  descricao: `Compra ${c.numero} — ${c.fornecedor}`,
+  valor: c.valor,
+  vencimento: c.data,
+  status: c.status === 'pago' ? 'pago' : 'pendente',
+  categoria: 'Compras',
+}));
+
+// Importa as compras acima (e suas contas) uma vez para quem já tem dados
+// salvos no navegador/Supabase. Sobrescreve por id (sem duplicar).
+export const COMPRAS_IMPORT_FLAG = 'erp:import:compras-distribuidora-v5';
