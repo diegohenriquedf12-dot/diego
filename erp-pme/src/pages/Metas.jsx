@@ -51,15 +51,15 @@ export default function Metas({ irPara }) {
         <div className="flex items-center gap-5">
           <ProgressRing valor={mediaGeral} tom={corPorMeta(mediaGeral)} tamanho={104} espessura={10}>
             <div className="text-center">
-              <p className="text-2xl font-bold text-slate-900 tabular-nums">
+              <p className="text-2xl font-bold text-ink tabular-nums">
                 <AnimatedNumber valor={mediaGeral} formato={(n) => `${Math.round(n)}%`} />
               </p>
-              <p className="text-[10px] text-slate-400">média</p>
+              <p className="text-[10px] text-muted">média</p>
             </div>
           </ProgressRing>
           <div>
-            <h3 className="text-base font-semibold text-slate-900">Desempenho geral</h3>
-            <p className="text-sm text-slate-500">Progresso médio de todas as metas ativas.</p>
+            <h3 className="text-base font-semibold text-ink">Desempenho geral</h3>
+            <p className="text-sm text-muted">Progresso médio de todas as metas ativas.</p>
           </div>
         </div>
         <div className="flex items-center gap-3 rounded-xl bg-emerald-50 px-5 py-4 text-emerald-700">
@@ -86,20 +86,20 @@ export default function Metas({ irPara }) {
                   <CheckCircle2 size={12} /> Concluída
                 </span>
               )}
-              <div className="flex items-center gap-2 text-slate-400">
+              <div className="flex items-center gap-2 text-muted">
                 <Target size={15} />
-                <h3 className="text-sm font-semibold text-slate-700">{m.titulo}</h3>
+                <h3 className="text-sm font-semibold text-ink">{m.titulo}</h3>
               </div>
 
-              <p className="mt-3 text-2xl font-bold tracking-tight text-slate-900 tabular-nums">
+              <p className="mt-3 text-2xl font-bold tracking-tight text-ink tabular-nums">
                 <AnimatedNumber valor={m.atual} formato={formato} />
               </p>
-              <p className="text-xs text-slate-400">de {formato(m.alvo)}</p>
+              <p className="text-xs text-muted">de {formato(m.alvo)}</p>
 
               <div className="mt-4">
                 <div className="mb-1 flex items-center justify-between text-xs font-medium">
-                  <span className="text-slate-400">Progresso</span>
-                  <span className={concluida ? 'text-emerald-600' : 'text-slate-700'}>
+                  <span className="text-muted">Progresso</span>
+                  <span className={concluida ? 'text-emerald-600' : 'text-ink'}>
                     {Math.round(m.pct)}%
                   </span>
                 </div>
@@ -107,7 +107,7 @@ export default function Metas({ irPara }) {
               </div>
 
               <div className="mt-4 flex justify-end">
-                <button onClick={() => { setForm(m); setModal(true); }} className="rounded-lg px-2 py-1 text-xs font-medium text-brand-600 hover:bg-brand-50">Editar</button>
+                <button onClick={() => { setForm(m); setModal(true); }} className="rounded-lg px-2 py-1 text-xs font-medium text-accent hover:bg-accent/10">Editar</button>
                 <button onClick={() => removerMeta(m.id)} className="rounded-lg p-1.5 text-rose-500 hover:bg-rose-50" aria-label="Excluir"><Trash2 size={15} /></button>
               </div>
             </Card>

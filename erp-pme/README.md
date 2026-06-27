@@ -19,9 +19,26 @@ ERP completo em React para gestão de pequenas empresas. Interface **premium**, 
 | **Agenda** | Calendário mensal interativo com eventos coloridos (reuniões, pagamentos, vencimentos, aniversários) e lista de próximos compromissos. |
 | **Relatórios** | Faturamento por cliente, produtos mais vendidos, despesas por categoria e exportação CSV. |
 
+## Tema (Dark / Light Mode)
+
+Sistema de temas dirigido por **variáveis CSS** (classe `.dark`/`.light` em `<html>`), com botão no cabeçalho (Sol/Lua) e preferência salva no `localStorage`.
+
+| Token | 🌙 Escuro | ☀️ Claro |
+|-------|-----------|----------|
+| Fundo (`canvas`) | `#0F0F0F` | `#F7F7F7` |
+| Card (`card`) | `#1A1A1A` | `#FFFFFF` |
+| Card secundário (`card2`) | `#232323` | `#F1F1F1` |
+| Texto (`ink`) | `#FFFFFF` | `#111111` |
+| Texto secundário (`muted`) | `#BDBDBD` | `#555555` |
+| Bordas (`line`) | `#2E2E2E` | `#DDDDDD` |
+| Ação/destaque (`accent`) | `#FF7A00` (laranja) | `#111111` (preto) |
+
+Status (KPIs): positivo `#22C55E`, atenção `#FACC15`, negativo `#EF4444`, info `#FF7A00`.
+Paleta de gráficos: laranja, verde, azul, vermelho, roxo, amarelo.
+
 ## Design & animações
 
-- Paleta corporativa **azul escuro (#0F172A) + azul (#2563EB)**, cards arredondados, sombras suaves e tipografia Inter.
+- Estética sofisticada inspirada em Stripe/Linear/Vercel/Notion, cards arredondados, sombras suaves e tipografia Inter.
 - KPIs com **contagem animada** (`AnimatedNumber`) e cor automática por meta (verde / amarelo / vermelho).
 - **Barras de progresso** e **indicadores circulares** animados (`Progress`), efeito de brilho ao concluir metas.
 - Entrada de cards em cascata, transições entre páginas e relógio (data/hora) em tempo real.

@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
 
 const tons = {
-  emerald: '#10b981',
-  blue: '#2563eb',
-  amber: '#f59e0b',
-  rose: '#f43f5e',
-  violet: '#8b5cf6',
+  emerald: '#22C55E',
+  blue: '#3B82F6',
+  amber: '#FACC15',
+  rose: '#EF4444',
+  violet: '#8B5CF6',
+  orange: '#FF7A00',
 };
 
-/** Cor automática por desempenho: <50 vermelho, <85 amarelo, >=100 verde */
+/** Cor automática por desempenho: <50 vermelho, <100 amarelo, >=100 verde */
 export function corPorMeta(pct) {
   if (pct >= 100) return 'emerald';
   if (pct >= 50) return 'amber';
@@ -51,7 +52,14 @@ export function ProgressRing({ valor = 0, tamanho = 92, espessura = 9, tom = 'bl
   return (
     <div className="relative inline-grid place-items-center" style={{ width: tamanho, height: tamanho }}>
       <svg width={tamanho} height={tamanho} className="-rotate-90">
-        <circle cx={tamanho / 2} cy={tamanho / 2} r={r} fill="none" stroke="#e2e8f0" strokeWidth={espessura} />
+        <circle
+          cx={tamanho / 2}
+          cy={tamanho / 2}
+          r={r}
+          fill="none"
+          style={{ stroke: 'rgb(var(--line))' }}
+          strokeWidth={espessura}
+        />
         <circle
           cx={tamanho / 2}
           cy={tamanho / 2}

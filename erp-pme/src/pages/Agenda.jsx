@@ -11,7 +11,7 @@ import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
 
 const tipos = {
-  reuniao: { rotulo: 'Reunião', icone: Users2, cls: 'bg-brand-500', chip: 'bg-brand-50 text-brand-700' },
+  reuniao: { rotulo: 'Reunião', icone: Users2, cls: 'bg-accent', chip: 'bg-accent/10 text-accent' },
   pagamento: { rotulo: 'Pagamento', icone: CreditCard, cls: 'bg-rose-500', chip: 'bg-rose-50 text-rose-700' },
   vencimento: { rotulo: 'Vencimento', icone: AlertCircle, cls: 'bg-amber-500', chip: 'bg-amber-50 text-amber-700' },
   aniversario: { rotulo: 'Aniversário', icone: Gift, cls: 'bg-violet-500', chip: 'bg-violet-50 text-violet-700' },
@@ -77,16 +77,16 @@ export default function Agenda({ irPara }) {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="p-5 lg:col-span-2">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-semibold text-slate-900">{meses[ref.mes]} {ref.ano}</h3>
+            <h3 className="text-base font-semibold text-ink">{meses[ref.mes]} {ref.ano}</h3>
             <div className="flex gap-1">
-              <button onClick={() => mover(-1)} className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100"><ChevronLeft size={18} /></button>
-              <button onClick={() => mover(1)} className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100"><ChevronRight size={18} /></button>
+              <button onClick={() => mover(-1)} className="rounded-lg p-2 text-muted transition-colors hover:bg-card2"><ChevronLeft size={18} /></button>
+              <button onClick={() => mover(1)} className="rounded-lg p-2 text-muted transition-colors hover:bg-card2"><ChevronRight size={18} /></button>
             </div>
           </div>
 
           <div className="grid grid-cols-7 gap-1 text-center">
             {diasSemana.map((d) => (
-              <div key={d} className="pb-2 text-[11px] font-semibold uppercase text-slate-400">{d}</div>
+              <div key={d} className="pb-2 text-[11px] font-semibold uppercase text-muted">{d}</div>
             ))}
             {celulas.map((dia, i) => {
               if (dia === null) return <div key={`v${i}`} />;
@@ -97,26 +97,26 @@ export default function Agenda({ irPara }) {
                 <div
                   key={data}
                   className={`min-h-[68px] rounded-lg border p-1.5 text-left transition-colors animate-fade-in ${
-                    ehHoje ? 'border-brand-500 bg-brand-50/60 ring-1 ring-brand-500/30' : 'border-slate-100 hover:bg-slate-50'
+                    ehHoje ? 'border-accent bg-accent/10 ring-1 ring-accent' : 'border-line hover:bg-card2'
                   }`}
                 >
-                  <span className={`text-xs font-semibold ${ehHoje ? 'text-brand-600' : 'text-slate-500'}`}>{dia}</span>
+                  <span className={`text-xs font-semibold ${ehHoje ? 'text-accent' : 'text-muted'}`}>{dia}</span>
                   <div className="mt-1 space-y-0.5">
                     {evs.slice(0, 2).map((e) => (
-                      <div key={e.id} className={`truncate rounded px-1 py-0.5 text-[9px] font-medium text-white ${tipos[e.tipo]?.cls || 'bg-slate-400'}`} title={e.titulo}>
+                      <div key={e.id} className={`truncate rounded px-1 py-0.5 text-[9px] font-medium text-white ${tipos[e.tipo]?.cls || 'bg-muted'}`} title={e.titulo}>
                         {e.titulo}
                       </div>
                     ))}
-                    {evs.length > 2 && <p className="text-[9px] text-slate-400">+{evs.length - 2}</p>}
+                    {evs.length > 2 && <p className="text-[9px] text-muted">+{evs.length - 2}</p>}
                   </div>
                 </div>
               );
             })}
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-3 border-t border-slate-100 pt-3">
+          <div className="mt-4 flex flex-wrap gap-3 border-t border-line pt-3">
             {Object.entries(tipos).map(([k, t]) => (
-              <span key={k} className="flex items-center gap-1.5 text-[11px] text-slate-500">
+              <span key={k} className="flex items-center gap-1.5 text-[11px] text-muted">
                 <span className={`h-2.5 w-2.5 rounded-full ${t.cls}`} /> {t.rotulo}
               </span>
             ))}
@@ -124,23 +124,23 @@ export default function Agenda({ irPara }) {
         </Card>
 
         <Card className="p-5">
-          <h3 className="mb-4 text-base font-semibold text-slate-900">Próximos compromissos</h3>
+          <h3 className="mb-4 text-base font-semibold text-ink">Próximos compromissos</h3>
           <ul className="space-y-2 stagger">
             {proximos.map((e) => {
               const t = tipos[e.tipo] || tipos.evento;
               const Icone = t.icone;
               return (
-                <li key={e.id} className="group flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-slate-50">
+                <li key={e.id} className="group flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-card2">
                   <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${t.chip}`}><Icone size={16} /></span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-slate-900">{e.titulo}</p>
-                    <p className="text-xs text-slate-500">{dataBR(e.data)}{e.hora && ` · ${e.hora}`}</p>
+                    <p className="truncate text-sm font-medium text-ink">{e.titulo}</p>
+                    <p className="text-xs text-muted">{dataBR(e.data)}{e.hora && ` · ${e.hora}`}</p>
                   </div>
-                  <button onClick={() => removerEvento(e.id)} className="rounded-lg p-1.5 text-slate-300 opacity-0 transition-opacity hover:bg-rose-50 hover:text-rose-500 group-hover:opacity-100" aria-label="Excluir"><Trash2 size={14} /></button>
+                  <button onClick={() => removerEvento(e.id)} className="rounded-lg p-1.5 text-muted opacity-0 transition-opacity hover:bg-rose-50 hover:text-rose-500 group-hover:opacity-100" aria-label="Excluir"><Trash2 size={14} /></button>
                 </li>
               );
             })}
-            {proximos.length === 0 && <p className="py-6 text-center text-sm text-slate-400">Nenhum compromisso futuro.</p>}
+            {proximos.length === 0 && <p className="py-6 text-center text-sm text-muted">Nenhum compromisso futuro.</p>}
           </ul>
         </Card>
       </div>

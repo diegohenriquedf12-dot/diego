@@ -30,9 +30,9 @@ function RastreioProgresso({ status }) {
 
   return (
     <div>
-      <div className="relative mb-3 h-1.5 w-full rounded-full bg-slate-100">
+      <div className="relative mb-3 h-1.5 w-full rounded-full bg-card2">
         <div
-          className={`absolute inset-y-0 left-0 rounded-full ${cancelado ? 'bg-rose-400' : 'bg-gradient-to-r from-brand-500 to-emerald-500'}`}
+          className={`absolute inset-y-0 left-0 rounded-full ${cancelado ? 'bg-rose-400' : 'bg-gradient-to-r from-accent to-pos'}`}
           style={{ width: `${cancelado ? 100 : pct}%`, transition: 'width 1s cubic-bezier(.16,1,.3,1)' }}
         />
       </div>
@@ -45,12 +45,12 @@ function RastreioProgresso({ status }) {
             <div key={etapa} className="flex flex-1 flex-col items-center gap-1">
               <span
                 className={`grid h-7 w-7 place-items-center rounded-full text-white transition-all duration-500 ${
-                  ativo ? 'bg-brand-500' : 'bg-slate-200 text-slate-400'
-                } ${atual ? 'ring-4 ring-brand-500/20' : ''}`}
+                  ativo ? 'bg-accent' : 'bg-card2 text-muted'
+                } ${atual ? 'ring-4 ring-accent' : ''}`}
               >
                 <Icone size={14} />
               </span>
-              <span className={`text-[10px] font-medium ${ativo ? 'text-slate-700' : 'text-slate-400'}`}>
+              <span className={`text-[10px] font-medium ${ativo ? 'text-ink' : 'text-muted'}`}>
                 {passoRotulo[etapa]}
               </span>
             </div>
@@ -136,12 +136,12 @@ export default function Pedidos({ irPara }) {
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
-          <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
           <input
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             placeholder="Buscar por nº, cliente ou produto..."
-            className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+            className="w-full rounded-lg border border-line bg-card py-2 pl-9 pr-3 text-sm shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
           />
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -150,7 +150,7 @@ export default function Pedidos({ irPara }) {
               key={f.id}
               onClick={() => setFiltro(f.id)}
               className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-                filtro === f.id ? 'bg-brand-500 text-white shadow-sm' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50'
+                filtro === f.id ? 'bg-accent text-white shadow-sm' : 'bg-card text-muted ring-1 ring-line hover:bg-card2'
               }`}
             >
               {f.nome}
@@ -169,26 +169,26 @@ export default function Pedidos({ irPara }) {
             <Card key={p.id} className="card-lift overflow-hidden p-5">
               <div className="mb-4 flex items-start justify-between">
                 <div>
-                  <p className="text-xs font-medium text-slate-400">#{p.id.replace('pd', '')}</p>
-                  <h3 className="text-sm font-semibold text-slate-900">{nomeCliente(p.clienteId)}</h3>
-                  <p className="text-xs text-slate-500">{p.qtd}× {p.produto}</p>
+                  <p className="text-xs font-medium text-muted">#{p.id.replace('pd', '')}</p>
+                  <h3 className="text-sm font-semibold text-ink">{nomeCliente(p.clienteId)}</h3>
+                  <p className="text-xs text-muted">{p.qtd}× {p.produto}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-base font-bold text-slate-900">{moeda(p.valor)}</p>
+                  <p className="text-base font-bold text-ink">{moeda(p.valor)}</p>
                   <Badge status={p.status}>{passoRotulo[p.status] || p.status}</Badge>
                 </div>
               </div>
 
               <RastreioProgresso status={p.status} />
 
-              <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-xs text-slate-500">
+              <div className="mt-4 flex items-center justify-between border-t border-line pt-3 text-xs text-muted">
                 <span className="inline-flex items-center gap-1">
                   <Truck size={13} /> {p.transportadora || '—'}
                 </span>
                 <span>Prev. {dataBR(p.entregaPrevista)}</span>
               </div>
               {p.rastreio && (
-                <p className="mt-1 font-mono text-[11px] text-slate-400">Rastreio: {p.rastreio}</p>
+                <p className="mt-1 font-mono text-[11px] text-muted">Rastreio: {p.rastreio}</p>
               )}
 
               <div className="mt-3 flex gap-2">
