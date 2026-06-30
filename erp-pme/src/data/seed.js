@@ -53,6 +53,7 @@ export const comprasSeed = [
   { id: 'cmp34231', numero: '34231', fornecedor: 'Distribuidora Siqueira Bikes', data: '2026-06-30', pagamento: 'Dinheiro', valor: 578.42, status: 'pendente' },
   { id: 'cmp34229', numero: '34229', fornecedor: 'Distribuidora Siqueira Bikes', data: '2026-06-30', pagamento: 'Dinheiro', valor: 17668.78, status: 'pendente' },
   { id: 'cmp34480', numero: '34480', fornecedor: 'Distribuidora Siqueira Bikes', data: '2026-06-30', pagamento: 'Dinheiro', valor: 2056.34, status: 'pendente' },
+  { id: 'cmp34498', numero: '34498', fornecedor: 'Distribuidora Siqueira Bikes', data: '2026-06-30', pagamento: 'Dinheiro', valor: 1155.58, status: 'pendente' },
 ];
 
 // Contas a pagar correspondentes (mesmo id) — alimentam o Financeiro.
@@ -68,4 +69,4 @@ export const contasCompras = comprasSeed.map((c) => ({
 
 // Importa as compras acima (e suas contas) uma vez para quem já tem dados
 // salvos no navegador/Supabase. Sobrescreve por id (sem duplicar).
-export const COMPRAS_IMPORT_FLAG = 'erp:import:compras-distribuidora-v7';
+export const COMPRAS_IMPORT_FLAG = 'erp:import:compras-distribuidora-v8';
