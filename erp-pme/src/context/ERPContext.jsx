@@ -333,6 +333,95 @@ export function ERPProvider({ children }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [despesasFixas, somenteLeitura]);
 
+  // ---- Folha de pagamento: salário de cada funcionário no Financeiro ----
+  // Conta a pagar (categoria "Salários") por funcionário/mês — vence dia 05.
+  const contaSalario = (f, ym) => ({
+    id: `sal${f.id}-${ym}`,
+    tipo: 'pagar',
+    descricao: `Salário — ${f.nome || 'Funcionário'}`,
+    valor: Number(f.salario) || 0,
+    vencimento: `${ym}-05`,
+    status: 'pendente',
+    categoria: 'Salários',
+  });
+
+  // Salvar funcionário: além do cadastro, lança/atualiza o salário do mês
+  // corrente no Financeiro (mantém o status da conta se já existir).
+  const salvarFuncionario = (func) => {
+    if (somenteLeitura) return null;
+    const id = func.id || novoId('e');
+    const completo = { ...func, id, salario: Number(func.salario) || 0 };
+    setFuncionarios((lista) =>
+      func.id ? lista.map((f) => (f.id === id ? { ...f, ...completo } : f)) : [completo, ...lista]
+    );
+    sincronizar('funcionarios', completo);
+
+    const ym = new Date().toISOString().slice(0, 7);
+    const conta = contaSalario(completo, ym);
+    if (completo.status === 'ativo' && conta.valor > 0) {
+      setContas((lista) =>
+        lista.some((c) => c.id === conta.id)
+          ? lista.map((c) => (c.id === conta.id ? { ...c, valor: conta.valor, descricao: conta.descricao } : c))
+          : [conta, ...lista]
+      );
+      sincronizar('contas', conta);
+    }
+    return completo;
+  };
+
+  const removerFuncionario = (id) => {
+    if (somenteLeitura) return;
+    setFuncionarios((lista) => lista.filter((f) => f.id !== id));
+    removerRemoto('funcionarios', id);
+    const salIds = contas
+      .filter((c) => typeof c.id === 'string' && c.id.startsWith(`sal${id}-`))
+      .map((c) => c.id);
+    if (salIds.length) {
+      setContas((lista) => lista.filter((c) => !salIds.includes(c.id)));
+      salIds.forEach((sid) => removerRemoto('contas', sid));
+    }
+  };
+
+  // Lança a folha (salários dos ativos) como contas a pagar do mês. Idempotente.
+  const lancarFolhaNoMes = (mes) => {
+    if (somenteLeitura) return 0;
+    const ym = mes || new Date().toISOString().slice(0, 7);
+    const existentes = new Set(contas.map((c) => c.id));
+    const aCriar = funcionarios
+      .filter((f) => f.status === 'ativo' && (Number(f.salario) || 0) > 0)
+      .map((f) => contaSalario(f, ym))
+      .filter((c) => !existentes.has(c.id));
+    if (aCriar.length) {
+      setContas((lista) => {
+        const ids = new Set(lista.map((c) => c.id));
+        const novas = aCriar.filter((c) => !ids.has(c.id));
+        return novas.length ? [...novas, ...lista] : lista;
+      });
+      aCriar.forEach((c) => sincronizar('contas', c));
+    }
+    return aCriar.length;
+  };
+
+  // Lançamento AUTOMÁTICO da folha no mês corrente (uma vez por mês).
+  useEffect(() => {
+    if (somenteLeitura) return;
+    const ym = new Date().toISOString().slice(0, 7);
+    const flag = `erp:folha:auto:${ym}`;
+    try {
+      if (localStorage.getItem(flag)) return;
+    } catch {
+      return;
+    }
+    if (!funcionarios.some((f) => f.status === 'ativo' && (Number(f.salario) || 0) > 0)) return;
+    lancarFolhaNoMes(ym);
+    try {
+      localStorage.setItem(flag, '1');
+    } catch {
+      /* ignora */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [funcionarios, somenteLeitura]);
+
   // ---- Indicadores derivados ----
   const indicadores = useMemo(() => {
     const recebido = contas
@@ -439,8 +528,9 @@ export function ERPProvider({ children }) {
     removerConta: remover(setContas, 'contas'),
     salvarPedido: upsert(setPedidos, 'pd', 'pedidos'),
     removerPedido: remover(setPedidos, 'pedidos'),
-    salvarFuncionario: upsert(setFuncionarios, 'e', 'funcionarios'),
-    removerFuncionario: remover(setFuncionarios, 'funcionarios'),
+    salvarFuncionario,
+    removerFuncionario,
+    lancarFolhaNoMes,
     salvarMeta: upsert(setMetas, 'm', 'metas'),
     removerMeta: remover(setMetas, 'metas'),
     salvarEvento: upsert(setEventos, 'ag', 'eventos'),
