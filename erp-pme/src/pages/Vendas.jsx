@@ -13,7 +13,7 @@ const vendaVazia = () => ({ clienteId: '', data: hoje(), itens: [], status: 'pag
 const manualVazia = () => ({ clienteNome: '', valor: '', data: hoje(), status: 'pago', pagamento: 'PIX' });
 
 export default function Vendas() {
-  const { vendas, clientes, produtos, salvarVenda, somenteLeitura } = useERP();
+  const { vendas, clientes, produtos, salvarVenda, removerVenda, somenteLeitura } = useERP();
   const [busca, setBusca] = useState('');
   const [modal, setModal] = useState(null);
   const [modalManual, setModalManual] = useState(null);
@@ -68,6 +68,12 @@ export default function Vendas() {
     ) },
     { chave: 'total', titulo: 'Total', alinhar: 'right', render: (v) => <span className="font-semibold text-ink">{moeda(totalVenda(v))}</span> },
     { chave: 'status', titulo: 'Status', render: (v) => <Badge status={v.status} /> },
+    { chave: 'acoes', titulo: '', alinhar: 'right', render: (v) =>
+      somenteLeitura ? null : (
+        <div className="flex justify-end">
+          <button onClick={() => removerVenda(v.id)} className="rounded-lg p-1.5 text-muted hover:bg-rose-50 hover:text-rose-600" aria-label="Excluir venda"><Trash2 size={15} /></button>
+        </div>
+      ) },
   ];
 
   const totalModal = modal ? modal.itens.reduce((s, i) => s + i.qtd * i.preco, 0) : 0;

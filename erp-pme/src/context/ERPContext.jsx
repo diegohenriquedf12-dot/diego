@@ -12,6 +12,7 @@ import {
   metasSeed,
   eventosSeed,
   LIMPEZA_FLAG,
+  VENDAS_LIMPEZA_FLAG,
   comprasSeed,
   contasCompras,
   COMPRAS_IMPORT_FLAG,
@@ -176,6 +177,33 @@ export function ERPProvider({ children }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Limpeza única da área de Vendas (e das contas a receber geradas por vendas).
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(VENDAS_LIMPEZA_FLAG)) return;
+    } catch {
+      return;
+    }
+    const vendaIds = vendas.map((v) => v.id);
+    if (vendaIds.length) {
+      setVendas([]);
+      vendaIds.forEach((id) => removerRemoto('vendas', id));
+    }
+    const contasVendaIds = contas
+      .filter((c) => c.tipo === 'receber' && c.categoria === 'Vendas')
+      .map((c) => c.id);
+    if (contasVendaIds.length) {
+      setContas((lista) => lista.filter((c) => !contasVendaIds.includes(c.id)));
+      contasVendaIds.forEach((id) => removerRemoto('contas', id));
+    }
+    try {
+      localStorage.setItem(VENDAS_LIMPEZA_FLAG, '1');
+    } catch {
+      /* ignora */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // ---- CRUD genérico por coleção (estado local + Supabase) ----
   // Convidado (somente leitura) não pode alterar dados.
   const upsert = (setter, prefixo, tabela) => (registro) => {
@@ -231,6 +259,21 @@ export function ERPProvider({ children }) {
       };
       setContas((lista) => [conta, ...lista]);
       sincronizar('contas', conta);
+    }
+  };
+
+  // Excluir venda: remove a venda e a conta a receber gerada por ela.
+  const removerVenda = (id) => {
+    if (somenteLeitura) return;
+    setVendas((lista) => lista.filter((v) => v.id !== id));
+    removerRemoto('vendas', id);
+    const num = String(id).replace('v', '');
+    const contasIds = contas
+      .filter((c) => c.tipo === 'receber' && typeof c.descricao === 'string' && c.descricao.startsWith(`Venda #${num}`))
+      .map((c) => c.id);
+    if (contasIds.length) {
+      setContas((lista) => lista.filter((c) => !contasIds.includes(c.id)));
+      contasIds.forEach((cid) => removerRemoto('contas', cid));
     }
   };
 
@@ -536,6 +579,7 @@ export function ERPProvider({ children }) {
     salvarEvento: upsert(setEventos, 'ag', 'eventos'),
     removerEvento: remover(setEventos, 'eventos'),
     salvarVenda,
+    removerVenda,
     quitarConta,
   };
 

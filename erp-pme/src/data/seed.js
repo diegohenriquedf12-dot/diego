@@ -36,6 +36,9 @@ export const eventosSeed = [];
 // Vendas, tanto no cache local quanto no Supabase.
 export const LIMPEZA_FLAG = 'erp:cleanup:compras-vendas-v4';
 
+// Nova limpeza da área de Vendas (e das contas a receber geradas por vendas).
+export const VENDAS_LIMPEZA_FLAG = 'erp:cleanup:vendas-v2';
+
 // Operação "Compras" — registros de compra (Distribuidora Siqueira Bikes),
 // importados da planilha de orçamentos de junho/2026.
 export const comprasSeed = [
