@@ -592,6 +592,8 @@ export function ERPProvider({ children }) {
       recebido,
       pago,
       saldo: recebido - pago,
+      // Saldo previsto = caixa atual (recebido − pago) + o que ainda entra/sai.
+      saldoPrevisto: recebido - pago + aReceber - aPagar,
       aReceber,
       aPagar,
       compras,

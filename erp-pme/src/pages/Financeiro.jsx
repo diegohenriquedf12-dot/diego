@@ -69,7 +69,7 @@ export default function Financeiro() {
         <Card className="p-4"><p className="text-xs font-medium text-muted">A receber</p><p className="mt-1 text-xl font-semibold text-emerald-600">{moeda(indicadores.aReceber)}</p></Card>
         <Card className="p-4"><p className="text-xs font-medium text-muted">A pagar</p><p className="mt-1 text-xl font-semibold text-rose-600">{moeda(indicadores.aPagar)}</p></Card>
         <Card className="p-4"><p className="text-xs font-medium text-muted">Recebido</p><p className="mt-1 text-xl font-semibold text-ink">{moeda(indicadores.recebido)}</p></Card>
-        <Card className="p-4"><p className="text-xs font-medium text-muted">Saldo previsto</p><p className="mt-1 text-xl font-semibold text-ink">{moeda(indicadores.aReceber - indicadores.aPagar)}</p></Card>
+        <Card className="p-4"><p className="text-xs font-medium text-muted">Saldo previsto</p><p className={`mt-1 text-xl font-semibold ${indicadores.saldoPrevisto < 0 ? 'text-rose-600' : 'text-ink'}`}>{moeda(indicadores.saldoPrevisto)}</p><p className="mt-0.5 text-[11px] text-muted">caixa + a receber − a pagar</p></Card>
       </div>
 
       <Card>
