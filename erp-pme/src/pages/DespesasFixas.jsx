@@ -19,9 +19,11 @@ export default function DespesasFixas() {
   const { despesasFixas, salvarDespesaFixa, removerDespesaFixa, lancarDespesasFixasNoMes, somenteLeitura } = useERP();
   const [modal, setModal] = useState(null);
   const [aviso, setAviso] = useState('');
+  const [mostrarInativas, setMostrarInativas] = useState(false); // por padrão oculta as inativas
 
   const ativas = despesasFixas.filter((f) => f.status !== 'inativo');
   const totalMensal = ativas.reduce((s, f) => s + (Number(f.valor) || 0), 0);
+  const listadas = mostrarInativas ? despesasFixas : ativas;
 
   const salvar = () => {
     if (!modal.descricao.trim() || !(Number(modal.valor) > 0)) return;
@@ -81,7 +83,15 @@ export default function DespesasFixas() {
       </div>
 
       <Card>
-        <DataTable colunas={colunas} dados={despesasFixas} vazio={<EmptyState icone={Repeat} titulo="Nenhuma despesa fixa" descricao="Cadastre custos recorrentes para lançá-los no Financeiro a cada mês com um clique." />} />
+        <div className="flex items-center justify-end border-b border-line p-3">
+          <button
+            onClick={() => setMostrarInativas((v) => !v)}
+            className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${mostrarInativas ? 'border-accent bg-accent text-accent-ink' : 'border-line text-muted hover:bg-card2'}`}
+          >
+            {mostrarInativas ? 'Ocultar inativas' : 'Mostrar inativas'}
+          </button>
+        </div>
+        <DataTable colunas={colunas} dados={listadas} vazio={<EmptyState icone={Repeat} titulo="Nenhuma despesa fixa" descricao="Cadastre custos recorrentes para lançá-los no Financeiro a cada mês com um clique." />} />
       </Card>
 
       <Modal
