@@ -468,15 +468,18 @@ export function ERPProvider({ children }) {
 
   // ---- Folha de pagamento: salário de cada funcionário no Financeiro ----
   // Conta a pagar (categoria "Salários") por funcionário/mês — vence dia 05.
-  const contaSalario = (f, ym) => ({
-    id: `sal${f.id}-${ym}`,
-    tipo: 'pagar',
-    descricao: `Salário — ${f.nome || 'Funcionário'}`,
-    valor: Number(f.salario) || 0,
-    vencimento: `${ym}-05`,
-    status: 'pendente',
-    categoria: 'Salários',
-  });
+  const contaSalario = (f, ym) => {
+    const dia = String(Math.min(Math.max(Number(f.diaPagamento) || 5, 1), 28)).padStart(2, '0');
+    return {
+      id: `sal${f.id}-${ym}`,
+      tipo: 'pagar',
+      descricao: `Salário — ${f.nome || 'Funcionário'}`,
+      valor: Number(f.salario) || 0,
+      vencimento: `${ym}-${dia}`,
+      status: 'pendente',
+      categoria: 'Salários',
+    };
+  };
 
   // Salvar funcionário: além do cadastro, lança/atualiza o salário do mês
   // corrente no Financeiro (mantém o status da conta se já existir).
