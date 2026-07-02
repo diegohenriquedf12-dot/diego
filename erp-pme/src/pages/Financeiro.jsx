@@ -11,13 +11,36 @@ import { Campo, Input, Select } from '../components/ui/Field';
 
 const vazio = { tipo: 'receber', descricao: '', valor: 0, vencimento: hoje(), status: 'pendente', categoria: 'Vendas' };
 
+const MESES_NOMES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+const nomeMes = (ym) => {
+  const [ano, m] = ym.split('-');
+  return `${MESES_NOMES[Number(m) - 1]} de ${ano}`;
+};
+
 export default function Financeiro() {
-  const { contas, indicadores, salvarConta, removerConta, quitarConta, somenteLeitura } = useERP();
+  const { contas, salvarConta, removerConta, quitarConta, somenteLeitura } = useERP();
   const [aba, setAba] = useState('todas'); // todas | receber | pagar
   const [mostrarPagas, setMostrarPagas] = useState(false); // por padrão oculta as pagas
+  const [mes, setMes] = useState('todos'); // 'todos' ou AAAA-MM
   const [modal, setModal] = useState(null);
 
-  const filtradas = contas.filter(
+  // Meses disponíveis (derivados dos vencimentos), do mais recente ao mais antigo
+  const meses = [...new Set(contas.map((c) => String(c.vencimento || '').slice(0, 7)).filter((m) => m.length === 7))]
+    .sort()
+    .reverse();
+
+  const noMes = (c) => mes === 'todos' || String(c.vencimento || '').slice(0, 7) === mes;
+  const doPeriodo = contas.filter(noMes);
+
+  // Totais do período selecionado (atualizam conforme o mês escolhido)
+  const soma = (cond) => doPeriodo.filter(cond).reduce((s, c) => s + (Number(c.valor) || 0), 0);
+  const tAReceber = soma((c) => c.tipo === 'receber' && c.status !== 'pago');
+  const tAPagar = soma((c) => c.tipo === 'pagar' && c.status !== 'pago');
+  const tRecebido = soma((c) => c.tipo === 'receber' && c.status === 'pago');
+  const tPago = soma((c) => c.tipo === 'pagar' && c.status === 'pago');
+  const tSaldo = tRecebido - tPago + tAReceber - tAPagar;
+
+  const filtradas = doPeriodo.filter(
     (c) => (aba === 'todas' || c.tipo === aba) && (mostrarPagas || c.status !== 'pago')
   );
 
@@ -65,11 +88,25 @@ export default function Financeiro() {
         acao={!somenteLeitura && <Button onClick={() => setModal({ ...vazio })}><Plus size={16} /> Novo lançamento</Button>}
       />
 
-      <div className="mb-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Card className="p-4"><p className="text-xs font-medium text-muted">A receber</p><p className="mt-1 text-xl font-semibold text-emerald-600">{moeda(indicadores.aReceber)}</p></Card>
-        <Card className="p-4"><p className="text-xs font-medium text-muted">A pagar</p><p className="mt-1 text-xl font-semibold text-rose-600">{moeda(indicadores.aPagar)}</p></Card>
-        <Card className="p-4"><p className="text-xs font-medium text-muted">Recebido</p><p className="mt-1 text-xl font-semibold text-ink">{moeda(indicadores.recebido)}</p></Card>
-        <Card className="p-4"><p className="text-xs font-medium text-muted">Saldo previsto</p><p className={`mt-1 text-xl font-semibold ${indicadores.saldoPrevisto < 0 ? 'text-rose-600' : 'text-ink'}`}>{moeda(indicadores.saldoPrevisto)}</p><p className="mt-0.5 text-[11px] text-muted">caixa + a receber − a pagar</p></Card>
+      {/* Filtro de período — os cards abaixo refletem o mês selecionado */}
+      <div className="mb-3 flex items-center gap-2">
+        <span className="text-sm font-medium text-muted">Período:</span>
+        <select
+          value={mes}
+          onChange={(e) => setMes(e.target.value)}
+          className="rounded-lg border border-line bg-card2 px-3 py-1.5 text-sm font-medium text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+        >
+          <option value="todos">Total (todos os meses)</option>
+          {meses.map((m) => <option key={m} value={m}>{nomeMes(m)}</option>)}
+        </select>
+      </div>
+
+      <div className="mb-4 grid grid-cols-2 gap-4 lg:grid-cols-5">
+        <Card className="p-4"><p className="text-xs font-medium text-muted">A receber</p><p className="mt-1 text-xl font-semibold text-emerald-600">{moeda(tAReceber)}</p></Card>
+        <Card className="p-4"><p className="text-xs font-medium text-muted">A pagar</p><p className="mt-1 text-xl font-semibold text-rose-600">{moeda(tAPagar)}</p></Card>
+        <Card className="p-4"><p className="text-xs font-medium text-muted">Recebido</p><p className="mt-1 text-xl font-semibold text-emerald-600">{moeda(tRecebido)}</p><p className="mt-0.5 text-[11px] text-muted">{mes === 'todos' ? 'total geral' : nomeMes(mes)}</p></Card>
+        <Card className="p-4"><p className="text-xs font-medium text-muted">Pago</p><p className="mt-1 text-xl font-semibold text-ink">{moeda(tPago)}</p><p className="mt-0.5 text-[11px] text-muted">{mes === 'todos' ? 'total geral' : nomeMes(mes)}</p></Card>
+        <Card className="p-4"><p className="text-xs font-medium text-muted">Saldo previsto</p><p className={`mt-1 text-xl font-semibold ${tSaldo < 0 ? 'text-rose-600' : 'text-ink'}`}>{moeda(tSaldo)}</p><p className="mt-0.5 text-[11px] text-muted">recebido − pago + a receber − a pagar</p></Card>
       </div>
 
       <Card>
