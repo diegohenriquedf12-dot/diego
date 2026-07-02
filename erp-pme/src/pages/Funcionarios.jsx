@@ -11,7 +11,7 @@ import DataTable from '../components/ui/DataTable';
 import KpiCard from '../components/ui/KpiCard';
 
 const vazio = {
-  nome: '', cargo: '', departamento: '', salario: '', admissao: '',
+  nome: '', cargo: '', departamento: '', salario: '', diaPagamento: 5, admissao: '',
   contato: '', email: '', status: 'ativo', ferias: 'Disponível',
 };
 
@@ -32,7 +32,7 @@ export default function Funcionarios({ irPara }) {
 
   const salvar = () => {
     if (!form.nome) return;
-    salvarFuncionario({ ...form, salario: Number(form.salario) || 0 });
+    salvarFuncionario({ ...form, salario: Number(form.salario) || 0, diaPagamento: Number(form.diaPagamento) || 5 });
     setModal(false);
   };
 
@@ -127,6 +127,11 @@ export default function Funcionarios({ irPara }) {
           <Campo label="Cargo"><Input value={form.cargo} onChange={(e) => setForm({ ...form, cargo: e.target.value })} /></Campo>
           <Campo label="Departamento"><Input value={form.departamento} onChange={(e) => setForm({ ...form, departamento: e.target.value })} /></Campo>
           <Campo label="Salário (R$)"><Input type="number" step="0.01" value={form.salario} onChange={(e) => setForm({ ...form, salario: e.target.value })} /></Campo>
+          <Campo label="Dia de pagamento">
+            <Select value={form.diaPagamento ?? 5} onChange={(e) => setForm({ ...form, diaPagamento: Number(e.target.value) })}>
+              {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => <option key={d} value={d}>Dia {d}</option>)}
+            </Select>
+          </Campo>
           <Campo label="Admissão"><Input type="date" value={form.admissao} onChange={(e) => setForm({ ...form, admissao: e.target.value })} /></Campo>
           <Campo label="Contato"><Input value={form.contato} onChange={(e) => setForm({ ...form, contato: e.target.value })} /></Campo>
           <Campo label="Email"><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></Campo>

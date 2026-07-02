@@ -29,7 +29,7 @@ export default function DespesasFixas() {
       id: `func-${f.id}`,
       descricao: f.nome,
       categoria: 'Salários',
-      diaVencimento: 5,
+      diaVencimento: Number(f.diaPagamento) || 5,
       dataFim: '',
       valor: Number(f.salario) || 0,
       status: 'ativo',
