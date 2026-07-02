@@ -17,6 +17,7 @@ export default function Vendas() {
   const [busca, setBusca] = useState('');
   const [modal, setModal] = useState(null);
   const [modalManual, setModalManual] = useState(null);
+  const [confirmar, setConfirmar] = useState(null);
   const [produtoSel, setProdutoSel] = useState('');
 
   const filtradas = vendas.filter((v) => {
@@ -71,7 +72,7 @@ export default function Vendas() {
     { chave: 'acoes', titulo: '', alinhar: 'right', render: (v) =>
       somenteLeitura ? null : (
         <div className="flex justify-end">
-          <button onClick={() => removerVenda(v.id)} className="rounded-lg p-1.5 text-muted hover:bg-rose-50 hover:text-rose-600" aria-label="Excluir venda"><Trash2 size={15} /></button>
+          <button onClick={() => setConfirmar(v)} className="rounded-lg p-1.5 text-muted hover:bg-rose-50 hover:text-rose-600" aria-label="Excluir venda"><Trash2 size={15} /></button>
         </div>
       ) },
   ];
@@ -216,6 +217,27 @@ export default function Vendas() {
               </Campo>
             </div>
           </div>
+        )}
+      </Modal>
+
+      {/* Confirmação antes de excluir uma venda */}
+      <Modal
+        aberto={!!confirmar}
+        titulo="Excluir venda"
+        onFechar={() => setConfirmar(null)}
+        rodape={
+          <>
+            <Button variant="secondary" onClick={() => setConfirmar(null)}>Cancelar</Button>
+            <Button onClick={() => { removerVenda(confirmar.id); setConfirmar(null); }}>Excluir</Button>
+          </>
+        }
+      >
+        {confirmar && (
+          <p className="text-sm text-muted">
+            Tem certeza que deseja excluir a venda{' '}
+            <span className="font-semibold text-ink">#{String(confirmar.id).replace('v', '')}</span>
+            {' '}({moeda(totalVenda(confirmar))})? Essa ação também remove a conta a receber gerada por ela e não pode ser desfeita.
+          </p>
         )}
       </Modal>
     </div>
