@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Plus, Pencil, Trash2, Repeat, CalendarPlus, CheckCircle2 } from 'lucide-react';
 import { useERP } from '../context/ERPContext';
-import { moeda } from '../utils/format';
+import { moeda, dataBR } from '../utils/format';
 import { PageHeader, Card, EmptyState } from '../components/ui/Layout';
 import DataTable from '../components/ui/DataTable';
 import Badge from '../components/ui/Badge';
@@ -10,7 +10,7 @@ import Modal from '../components/ui/Modal';
 import { Campo, Input, Select } from '../components/ui/Field';
 
 const categorias = ['Aluguel', 'Salários', 'Energia', 'Água', 'Internet/Telefone', 'Impostos', 'Software/Assinaturas', 'Outros'];
-const vazia = () => ({ descricao: '', categoria: 'Aluguel', valor: '', diaVencimento: 5, status: 'ativo' });
+const vazia = () => ({ descricao: '', categoria: 'Aluguel', valor: '', diaVencimento: 5, dataFim: '', status: 'ativo' });
 
 const mesAtualLabel = () =>
   new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
@@ -46,6 +46,7 @@ export default function DespesasFixas() {
       <div><p className="font-medium text-ink">{f.descricao}</p><p className="text-xs text-muted">{f.categoria}</p></div>
     ) },
     { chave: 'diaVencimento', titulo: 'Vence dia', render: (f) => `Dia ${f.diaVencimento}` },
+    { chave: 'dataFim', titulo: 'Encerra em', render: (f) => (f.dataFim ? dataBR(f.dataFim) : 'Sem fim') },
     { chave: 'valor', titulo: 'Valor / mês', alinhar: 'right', render: (f) => <span className="font-semibold text-rose-600">{moeda(f.valor)}</span> },
     { chave: 'status', titulo: 'Status', render: (f) => <Badge status={f.status || 'ativo'} /> },
     { chave: 'acoes', titulo: '', alinhar: 'right', render: (f) =>
@@ -129,6 +130,15 @@ export default function DespesasFixas() {
                 </Select>
               </Campo>
             </div>
+            <Campo label="Encerrar em (opcional)">
+              <input
+                type="date"
+                value={modal.dataFim || ''}
+                onChange={(e) => setModal({ ...modal, dataFim: e.target.value })}
+                className="w-full rounded-lg border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+              />
+              <p className="mt-1 text-xs text-muted">A partir dessa data a despesa deixa de ser lançada. Deixe em branco para não ter fim.</p>
+            </Campo>
           </div>
         )}
       </Modal>

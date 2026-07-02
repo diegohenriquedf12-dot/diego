@@ -359,6 +359,13 @@ export function ERPProvider({ children }) {
   };
 
   // ---- Despesas fixas (recorrentes) ----
+  // Uma despesa fixa vale em um mês (AAAA-MM) se está ativa, tem valor e
+  // esse mês ainda não passou da data de encerramento (dataFim), se houver.
+  const fixaAtivaNoMes = (f, ym) =>
+    f.status !== 'inativo' &&
+    (Number(f.valor) || 0) > 0 &&
+    (!f.dataFim || ym <= String(f.dataFim).slice(0, 7));
+
   // Conta a pagar (categoria da despesa) por despesa fixa / mês.
   const contaDespesaFixa = (f, ym) => {
     const dia = String(Math.min(Math.max(Number(f.diaVencimento) || 1, 1), 28)).padStart(2, '0');
@@ -387,7 +394,7 @@ export function ERPProvider({ children }) {
 
     const ym = new Date().toISOString().slice(0, 7);
     const conta = contaDespesaFixa(completo, ym);
-    if (completo.status !== 'inativo' && conta.valor > 0) {
+    if (fixaAtivaNoMes(completo, ym)) {
       setContas((lista) =>
         lista.some((c) => c.id === conta.id)
           ? lista.map((c) => (c.id === conta.id ? { ...c, valor: conta.valor, descricao: conta.descricao, vencimento: conta.vencimento, categoria: conta.categoria } : c))
@@ -422,7 +429,7 @@ export function ERPProvider({ children }) {
     const ym = mes || new Date().toISOString().slice(0, 7);
     const existentes = new Set(contas.map((c) => c.id));
     const aCriar = despesasFixas
-      .filter((f) => f.status !== 'inativo')
+      .filter((f) => fixaAtivaNoMes(f, ym))
       .map((f) => contaDespesaFixa(f, ym))
       .filter((c) => !existentes.has(c.id));
 
