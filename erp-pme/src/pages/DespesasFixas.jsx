@@ -16,14 +16,30 @@ const mesAtualLabel = () =>
   new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
 
 export default function DespesasFixas() {
-  const { despesasFixas, salvarDespesaFixa, removerDespesaFixa, lancarDespesasFixasNoMes, somenteLeitura } = useERP();
+  const { despesasFixas, funcionarios, salvarDespesaFixa, removerDespesaFixa, lancarDespesasFixasNoMes, somenteLeitura } = useERP();
   const [modal, setModal] = useState(null);
   const [aviso, setAviso] = useState('');
   const [mostrarInativas, setMostrarInativas] = useState(false); // por padrão oculta as inativas
 
+  // Salários dos funcionários ativos entram como despesas fixas (só leitura
+  // aqui — são gerenciados na tela Funcionários). Vencimento no dia 05.
+  const salarios = funcionarios
+    .filter((f) => f.status === 'ativo' && (Number(f.salario) || 0) > 0)
+    .map((f) => ({
+      id: `func-${f.id}`,
+      descricao: f.nome,
+      categoria: 'Salários',
+      diaVencimento: 5,
+      dataFim: '',
+      valor: Number(f.salario) || 0,
+      status: 'ativo',
+      origem: 'funcionario',
+    }));
+
   const ativas = despesasFixas.filter((f) => f.status !== 'inativo');
-  const totalMensal = ativas.reduce((s, f) => s + (Number(f.valor) || 0), 0);
-  const listadas = mostrarInativas ? despesasFixas : ativas;
+  const folhaTotal = salarios.reduce((s, f) => s + f.valor, 0);
+  const totalMensal = ativas.reduce((s, f) => s + (Number(f.valor) || 0), 0) + folhaTotal;
+  const listadas = [...salarios, ...(mostrarInativas ? despesasFixas : ativas)];
 
   const salvar = () => {
     if (!modal.descricao.trim() || !(Number(modal.valor) > 0)) return;
@@ -43,14 +59,19 @@ export default function DespesasFixas() {
 
   const colunas = [
     { chave: 'descricao', titulo: 'Despesa', render: (f) => (
-      <div><p className="font-medium text-ink">{f.descricao}</p><p className="text-xs text-muted">{f.categoria}</p></div>
+      <div>
+        <p className="font-medium text-ink">{f.descricao}</p>
+        <p className="text-xs text-muted">{f.categoria}{f.origem === 'funcionario' ? ' · Funcionário' : ''}</p>
+      </div>
     ) },
     { chave: 'diaVencimento', titulo: 'Vence dia', render: (f) => `Dia ${f.diaVencimento}` },
     { chave: 'dataFim', titulo: 'Encerra em', render: (f) => (f.dataFim ? dataBR(f.dataFim) : 'Sem fim') },
     { chave: 'valor', titulo: 'Valor / mês', alinhar: 'right', render: (f) => <span className="font-semibold text-rose-600">{moeda(f.valor)}</span> },
     { chave: 'status', titulo: 'Status', render: (f) => <Badge status={f.status || 'ativo'} /> },
     { chave: 'acoes', titulo: '', alinhar: 'right', render: (f) =>
-      somenteLeitura ? null : (
+      f.origem === 'funcionario' ? (
+        <span className="text-xs text-muted">Editar em Funcionários</span>
+      ) : somenteLeitura ? null : (
         <div className="flex justify-end gap-1">
           <button onClick={() => setModal(f)} className="rounded-lg p-1.5 text-muted hover:bg-card2 hover:text-ink" aria-label="Editar"><Pencil size={15} /></button>
           <button onClick={() => removerDespesaFixa(f.id)} className="rounded-lg p-1.5 text-muted hover:bg-rose-50 hover:text-rose-600" aria-label="Excluir"><Trash2 size={15} /></button>
@@ -78,9 +99,9 @@ export default function DespesasFixas() {
       )}
 
       <div className="mb-4 grid grid-cols-2 gap-4 lg:grid-cols-3">
-        <Card className="p-4"><p className="text-xs font-medium text-muted">Total fixo mensal</p><p className="mt-1 text-xl font-semibold text-rose-600">{moeda(totalMensal)}</p></Card>
-        <Card className="p-4"><p className="text-xs font-medium text-muted">Despesas ativas</p><p className="mt-1 text-xl font-semibold text-ink">{ativas.length}</p></Card>
-        <Card className="p-4"><p className="text-xs font-medium text-muted">Cadastradas</p><p className="mt-1 text-xl font-semibold text-ink">{despesasFixas.length}</p></Card>
+        <Card className="p-4"><p className="text-xs font-medium text-muted">Total fixo mensal</p><p className="mt-1 text-xl font-semibold text-rose-600">{moeda(totalMensal)}</p><p className="mt-0.5 text-[11px] text-muted">inclui salários</p></Card>
+        <Card className="p-4"><p className="text-xs font-medium text-muted">Salários (folha)</p><p className="mt-1 text-xl font-semibold text-ink">{moeda(folhaTotal)}</p><p className="mt-0.5 text-[11px] text-muted">{salarios.length} funcionário(s)</p></Card>
+        <Card className="p-4"><p className="text-xs font-medium text-muted">Despesas ativas</p><p className="mt-1 text-xl font-semibold text-ink">{ativas.length + salarios.length}</p></Card>
       </div>
 
       <Card>
