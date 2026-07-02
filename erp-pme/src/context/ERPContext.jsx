@@ -321,6 +321,62 @@ export function ERPProvider({ children }) {
   };
 
   // ---- Despesas fixas (recorrentes) ----
+  // Conta a pagar (categoria da despesa) por despesa fixa / mês.
+  const contaDespesaFixa = (f, ym) => {
+    const dia = String(Math.min(Math.max(Number(f.diaVencimento) || 1, 1), 28)).padStart(2, '0');
+    return {
+      id: `df${f.id}-${ym}`,
+      tipo: 'pagar',
+      descricao: `${f.descricao} (fixa)`,
+      valor: Number(f.valor) || 0,
+      vencimento: `${ym}-${dia}`,
+      status: 'pendente',
+      categoria: f.categoria || 'Despesa fixa',
+    };
+  };
+
+  // Salvar despesa fixa: além do cadastro, cria/atualiza a conta do mês
+  // corrente no Financeiro (mantém o status da conta se já existir; some
+  // do Financeiro se a despesa ficar inativa).
+  const salvarDespesaFixa = (fixa) => {
+    if (somenteLeitura) return null;
+    const id = fixa.id || novoId('fx');
+    const completo = { ...fixa, id, valor: Number(fixa.valor) || 0 };
+    setDespesasFixas((lista) =>
+      fixa.id ? lista.map((f) => (f.id === id ? { ...f, ...completo } : f)) : [completo, ...lista]
+    );
+    sincronizar('despesasfixas', completo);
+
+    const ym = new Date().toISOString().slice(0, 7);
+    const conta = contaDespesaFixa(completo, ym);
+    if (completo.status !== 'inativo' && conta.valor > 0) {
+      setContas((lista) =>
+        lista.some((c) => c.id === conta.id)
+          ? lista.map((c) => (c.id === conta.id ? { ...c, valor: conta.valor, descricao: conta.descricao, vencimento: conta.vencimento, categoria: conta.categoria } : c))
+          : [conta, ...lista]
+      );
+      sincronizar('contas', conta);
+    } else {
+      // despesa inativa: remove a conta do mês corrente, se houver
+      setContas((lista) => lista.filter((c) => c.id !== conta.id));
+      removerRemoto('contas', conta.id);
+    }
+    return completo;
+  };
+
+  const removerDespesaFixa = (id) => {
+    if (somenteLeitura) return;
+    setDespesasFixas((lista) => lista.filter((f) => f.id !== id));
+    removerRemoto('despesasfixas', id);
+    const ids = contas
+      .filter((c) => typeof c.id === 'string' && c.id.startsWith(`df${id}-`))
+      .map((c) => c.id);
+    if (ids.length) {
+      setContas((lista) => lista.filter((c) => !ids.includes(c.id)));
+      ids.forEach((cid) => removerRemoto('contas', cid));
+    }
+  };
+
   // Lança as despesas fixas ativas como contas a pagar do mês informado
   // (AAAA-MM). Idempotente: não duplica se já lançou no mesmo mês.
   const lancarDespesasFixasNoMes = (mes) => {
@@ -329,18 +385,7 @@ export function ERPProvider({ children }) {
     const existentes = new Set(contas.map((c) => c.id));
     const aCriar = despesasFixas
       .filter((f) => f.status !== 'inativo')
-      .map((f) => {
-        const dia = String(Math.min(Math.max(Number(f.diaVencimento) || 1, 1), 28)).padStart(2, '0');
-        return {
-          id: `df${f.id}-${ym}`,
-          tipo: 'pagar',
-          descricao: `${f.descricao} (fixa)`,
-          valor: Number(f.valor) || 0,
-          vencimento: `${ym}-${dia}`,
-          status: 'pendente',
-          categoria: f.categoria || 'Despesa fixa',
-        };
-      })
+      .map((f) => contaDespesaFixa(f, ym))
       .filter((c) => !existentes.has(c.id));
 
     if (aCriar.length) {
@@ -558,8 +603,8 @@ export function ERPProvider({ children }) {
     backendAtivo: supabaseAtivo,
     salvarCompra,
     removerCompra,
-    salvarDespesaFixa: upsert(setDespesasFixas, 'fx', 'despesasfixas'),
-    removerDespesaFixa: remover(setDespesasFixas, 'despesasfixas'),
+    salvarDespesaFixa,
+    removerDespesaFixa,
     lancarDespesasFixasNoMes,
     salvarCliente: upsert(setClientes, 'c', 'clientes'),
     removerCliente: remover(setClientes, 'clientes'),
