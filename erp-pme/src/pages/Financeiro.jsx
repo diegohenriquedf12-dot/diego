@@ -14,9 +14,12 @@ const vazio = { tipo: 'receber', descricao: '', valor: 0, vencimento: hoje(), st
 export default function Financeiro() {
   const { contas, indicadores, salvarConta, removerConta, quitarConta, somenteLeitura } = useERP();
   const [aba, setAba] = useState('todas'); // todas | receber | pagar
+  const [mostrarPagas, setMostrarPagas] = useState(false); // por padrão oculta as pagas
   const [modal, setModal] = useState(null);
 
-  const filtradas = contas.filter((c) => aba === 'todas' || c.tipo === aba);
+  const filtradas = contas.filter(
+    (c) => (aba === 'todas' || c.tipo === aba) && (mostrarPagas || c.status !== 'pago')
+  );
 
   const salvar = () => {
     if (!modal.descricao.trim()) return;
@@ -70,10 +73,16 @@ export default function Financeiro() {
       </div>
 
       <Card>
-        <div className="flex gap-1 border-b border-line p-3">
+        <div className="flex items-center gap-1 border-b border-line p-3">
           {[['todas', 'Todas'], ['receber', 'A receber'], ['pagar', 'A pagar']].map(([v, l]) => (
             <button key={v} onClick={() => setAba(v)} className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${aba === v ? 'bg-accent text-accent-ink' : 'text-muted hover:bg-card2'}`}>{l}</button>
           ))}
+          <button
+            onClick={() => setMostrarPagas((v) => !v)}
+            className={`ml-auto rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${mostrarPagas ? 'border-accent bg-accent text-accent-ink' : 'border-line text-muted hover:bg-card2'}`}
+          >
+            {mostrarPagas ? 'Ocultar pagas' : 'Mostrar pagas'}
+          </button>
         </div>
         <DataTable colunas={colunas} dados={filtradas} vazio={<EmptyState icone={Wallet} titulo="Nenhum lançamento" descricao="Registre contas a pagar e a receber para controlar seu caixa." />} />
       </Card>

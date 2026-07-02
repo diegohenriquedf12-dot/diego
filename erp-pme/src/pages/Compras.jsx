@@ -21,10 +21,13 @@ const vazia = () => ({
 export default function Compras() {
   const { compras, salvarCompra, removerCompra, somenteLeitura } = useERP();
   const [busca, setBusca] = useState('');
+  const [mostrarPagas, setMostrarPagas] = useState(false); // por padrão oculta as pagas
   const [modal, setModal] = useState(null);
 
-  const filtradas = compras.filter((c) =>
-    [c.numero, c.fornecedor, c.pagamento].join(' ').toLowerCase().includes(busca.toLowerCase())
+  const filtradas = compras.filter(
+    (c) =>
+      (mostrarPagas || c.status !== 'pago') &&
+      [c.numero, c.fornecedor, c.pagamento].join(' ').toLowerCase().includes(busca.toLowerCase())
   );
 
   const total = compras.reduce((s, c) => s + (Number(c.valor) || 0), 0);
@@ -73,11 +76,17 @@ export default function Compras() {
       </div>
 
       <Card>
-        <div className="border-b border-line p-4">
-          <div className="relative max-w-sm">
+        <div className="flex items-center gap-3 border-b border-line p-4">
+          <div className="relative max-w-sm flex-1">
             <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
             <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar por nº ou fornecedor..." className="w-full rounded-lg border border-line bg-card2 py-2 pl-9 pr-3 text-sm focus:border-accent focus:bg-card focus:outline-none focus:ring-2 focus:ring-accent/25" />
           </div>
+          <button
+            onClick={() => setMostrarPagas((v) => !v)}
+            className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${mostrarPagas ? 'border-accent bg-accent text-accent-ink' : 'border-line text-muted hover:bg-card2'}`}
+          >
+            {mostrarPagas ? 'Ocultar pagas' : 'Mostrar pagas'}
+          </button>
         </div>
         <DataTable colunas={colunas} dados={filtradas} vazio={<EmptyState icone={Truck} titulo="Nenhuma compra registrada" descricao="Registre compras para controlar o que você precisa pagar aos fornecedores." />} />
       </Card>
