@@ -16,6 +16,10 @@ export const contasSeed = [];
 // Cada uma pode ser lançada como conta a pagar do mês na própria tela.
 export const despesasFixasSeed = [];
 
+// Boletos a pagar — cada um com beneficiário, valor total e vencimento.
+// Geram uma conta a pagar vinculada (mesmo id) no Financeiro.
+export const boletosSeed = [];
+
 // Histórico mensal consolidado para gráficos do dashboard
 export const historicoSeed = [];
 

@@ -17,7 +17,7 @@ declare
   t text;
   tabelas text[] := array[
     'clientes', 'fornecedores', 'produtos', 'vendas', 'contas',
-    'pedidos', 'funcionarios', 'metas', 'eventos', 'compras', 'despesasfixas'
+    'pedidos', 'funcionarios', 'metas', 'eventos', 'compras', 'despesasfixas', 'boletos'
   ];
 begin
   foreach t in array tabelas loop

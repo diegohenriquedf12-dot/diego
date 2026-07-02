@@ -6,6 +6,7 @@ import {
   vendasSeed,
   contasSeed,
   despesasFixasSeed,
+  boletosSeed,
   historicoSeed,
   pedidosSeed,
   funcionariosSeed,
@@ -59,6 +60,7 @@ export function ERPProvider({ children }) {
   const [eventos, setEventos] = useColecaoPersistida('eventos', eventosSeed);
   const [compras, setCompras] = useColecaoPersistida('compras', comprasSeed);
   const [despesasFixas, setDespesasFixas] = useColecaoPersistida('despesasfixas', despesasFixasSeed);
+  const [boletos, setBoletos] = useColecaoPersistida('boletos', boletosSeed);
 
   // ---- Sincronização com o Supabase (no-op quando não configurado) ----
   // Esquema das tabelas: id text (PK), dados jsonb, atualizado_em timestamptz.
@@ -95,6 +97,7 @@ export function ERPProvider({ children }) {
       eventos: setEventos,
       compras: setCompras,
       despesasfixas: setDespesasFixas,
+      boletos: setBoletos,
     };
     (async () => {
       for (const [tabela, set] of Object.entries(setters)) {
@@ -282,8 +285,9 @@ export function ERPProvider({ children }) {
     setContas((lista) => lista.map((c) => (c.id === id ? { ...c, status: 'pago' } : c)));
     const conta = contas.find((c) => c.id === id);
     if (conta) sincronizar('contas', { ...conta, status: 'pago' });
-    // se a conta veio de uma compra, reflete o status na compra
+    // se a conta veio de uma compra/boleto, reflete o status neles
     setCompras((lista) => lista.map((c) => (c.id === id ? { ...c, status: 'pago' } : c)));
+    setBoletos((lista) => lista.map((b) => (b.id === id ? { ...b, status: 'pago' } : b)));
   };
 
   // ---- Compras: registro próprio + conta a pagar vinculada (mesmo id) ----
@@ -316,6 +320,40 @@ export function ERPProvider({ children }) {
     if (somenteLeitura) return;
     setCompras((lista) => lista.filter((c) => c.id !== id));
     removerRemoto('compras', id);
+    setContas((lista) => lista.filter((c) => c.id !== id));
+    removerRemoto('contas', id);
+  };
+
+  // ---- Boletos: registro próprio + conta a pagar vinculada (mesmo id) ----
+  const salvarBoleto = (boleto) => {
+    if (somenteLeitura) return null;
+    const id = boleto.id || novoId('bol');
+    const completo = { ...boleto, id, valor: Number(boleto.valor) || 0 };
+    setBoletos((lista) =>
+      boleto.id ? lista.map((b) => (b.id === id ? completo : b)) : [completo, ...lista]
+    );
+    sincronizar('boletos', completo);
+
+    const conta = {
+      id,
+      tipo: 'pagar',
+      descricao: `Boleto — ${completo.descricao || completo.beneficiario || 'Boleto'}`,
+      valor: completo.valor,
+      vencimento: completo.vencimento,
+      status: completo.status === 'pago' ? 'pago' : 'pendente',
+      categoria: 'Boletos',
+    };
+    setContas((lista) =>
+      lista.some((c) => c.id === id) ? lista.map((c) => (c.id === id ? conta : c)) : [conta, ...lista]
+    );
+    sincronizar('contas', conta);
+    return completo;
+  };
+
+  const removerBoleto = (id) => {
+    if (somenteLeitura) return;
+    setBoletos((lista) => lista.filter((b) => b.id !== id));
+    removerRemoto('boletos', id);
     setContas((lista) => lista.filter((c) => c.id !== id));
     removerRemoto('contas', id);
   };
@@ -601,8 +639,11 @@ export function ERPProvider({ children }) {
     atualDaMeta,
     somenteLeitura,
     backendAtivo: supabaseAtivo,
+    boletos,
     salvarCompra,
     removerCompra,
+    salvarBoleto,
+    removerBoleto,
     salvarDespesaFixa,
     removerDespesaFixa,
     lancarDespesasFixasNoMes,

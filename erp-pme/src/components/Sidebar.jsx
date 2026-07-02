@@ -8,6 +8,7 @@ import {
   Wallet,
   ArrowLeftRight,
   Repeat,
+  Barcode,
   BarChart3,
   UserCog,
   Target,
@@ -37,6 +38,7 @@ export const grupos = [
     titulo: 'Financeiro',
     itens: [
       { id: 'financeiro', nome: 'Financeiro', icone: Wallet },
+      { id: 'boletos', nome: 'Boletos', icone: Barcode },
       { id: 'despesasfixas', nome: 'Despesas fixas', icone: Repeat },
       { id: 'fluxo', nome: 'Fluxo de caixa', icone: ArrowLeftRight },
     ],

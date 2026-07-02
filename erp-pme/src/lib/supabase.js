@@ -25,4 +25,5 @@ export const TABELAS = [
   'eventos',
   'compras',
   'despesasfixas',
+  'boletos',
 ];
