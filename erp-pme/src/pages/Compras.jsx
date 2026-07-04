@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2, CheckCircle2, Truck, Search } from 'lucide-react';
+import { Plus, Pencil, Trash2, CheckCircle2, Truck, Search } from 'lucide-react';
 import { useERP } from '../context/ERPContext';
 import { moeda, dataBR, hoje } from '../utils/format';
 import { PageHeader, Card, EmptyState } from '../components/ui/Layout';
@@ -56,6 +56,7 @@ export default function Compras() {
           {c.status !== 'pago' && (
             <button onClick={() => salvarCompra({ ...c, status: 'pago' })} className="rounded-lg p-1.5 text-muted hover:bg-emerald-50 hover:text-emerald-600" title="Marcar como paga"><CheckCircle2 size={15} /></button>
           )}
+          <button onClick={() => setModal({ ...c })} className="rounded-lg p-1.5 text-muted hover:bg-card2 hover:text-ink" aria-label="Editar"><Pencil size={15} /></button>
           <button onClick={() => removerCompra(c.id)} className="rounded-lg p-1.5 text-muted hover:bg-rose-50 hover:text-rose-600" aria-label="Excluir"><Trash2 size={15} /></button>
         </div>
       ) },

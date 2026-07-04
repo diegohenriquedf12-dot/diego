@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, PencilLine, Trash2, ShoppingCart, Search, X } from 'lucide-react';
+import { Plus, Pencil, PencilLine, Trash2, ShoppingCart, Search, X } from 'lucide-react';
 import { useERP } from '../context/ERPContext';
 import { moeda, dataBR, totalVenda, hoje } from '../utils/format';
 import { PageHeader, Card, EmptyState } from '../components/ui/Layout';
@@ -48,6 +48,7 @@ export default function Vendas() {
   const salvarManual = () => {
     if (!modalManual.clienteNome.trim() || !(Number(modalManual.valor) > 0)) return;
     salvarVenda({
+      ...(modalManual.id ? { id: modalManual.id } : {}),
       clienteId: '',
       clienteNome: modalManual.clienteNome.trim(),
       data: modalManual.data,
@@ -71,7 +72,18 @@ export default function Vendas() {
     { chave: 'status', titulo: 'Status', render: (v) => <Badge status={v.status} /> },
     { chave: 'acoes', titulo: '', alinhar: 'right', render: (v) =>
       somenteLeitura ? null : (
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-1">
+          <button
+            onClick={() =>
+              v.itens.length
+                ? setModal({ ...v })
+                : setModalManual({ id: v.id, clienteNome: v.clienteNome || '', valor: v.total ?? totalVenda(v), data: v.data, pagamento: v.pagamento, status: v.status })
+            }
+            className="rounded-lg p-1.5 text-muted hover:bg-card2 hover:text-ink"
+            aria-label="Editar venda"
+          >
+            <Pencil size={15} />
+          </button>
           <button onClick={() => setConfirmar(v)} className="rounded-lg p-1.5 text-muted hover:bg-rose-50 hover:text-rose-600" aria-label="Excluir venda"><Trash2 size={15} /></button>
         </div>
       ) },
@@ -104,7 +116,7 @@ export default function Vendas() {
 
       <Modal
         aberto={!!modal}
-        titulo="Nova venda"
+        titulo={modal?.id ? `Editar venda #${String(modal.id).replace('v', '')}` : 'Nova venda'}
         onFechar={() => setModal(null)}
         rodape={
           <>
@@ -181,7 +193,7 @@ export default function Vendas() {
           sem precisar de produtos cadastrados (não baixa estoque). */}
       <Modal
         aberto={!!modalManual}
-        titulo="Lançar venda manual"
+        titulo={modalManual?.id ? `Editar venda #${String(modalManual.id).replace('v', '')}` : 'Lançar venda manual'}
         onFechar={() => setModalManual(null)}
         rodape={
           <>

@@ -239,6 +239,26 @@ export function ERPProvider({ children }) {
     );
     sincronizar('vendas', completa);
 
+    // Edição: atualiza a conta a receber vinculada (valor, data, cliente, status)
+    if (venda.id) {
+      const num = String(id).replace('v', '');
+      const cliente = clientes.find((c) => c.id === completa.clienteId);
+      const alvo = contas.find(
+        (c) => c.tipo === 'receber' && typeof c.descricao === 'string' && c.descricao.startsWith(`Venda #${num}`)
+      );
+      if (alvo) {
+        const atualizada = {
+          ...alvo,
+          descricao: `Venda #${num} — ${cliente?.nome || completa.clienteNome || 'Cliente'}`,
+          valor: total,
+          vencimento: completa.data,
+          status: completa.status === 'pago' ? 'pago' : 'pendente',
+        };
+        setContas((lista) => lista.map((c) => (c.id === alvo.id ? atualizada : c)));
+        sincronizar('contas', atualizada);
+      }
+    }
+
     // Baixa de estoque apenas em vendas novas e não canceladas
     if (!venda.id && venda.status !== 'cancelado') {
       const afetados = produtos
