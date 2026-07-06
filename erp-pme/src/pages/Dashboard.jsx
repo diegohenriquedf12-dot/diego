@@ -35,6 +35,16 @@ export default function Dashboard({ irPara }) {
   const lucro = mesAtual.receita - mesAtual.despesa;
   const variacao = (a, b) => (b ? +(((a - b) / b) * 100).toFixed(1) : 0);
 
+  // Card "Vendas" com filtro por mês (categoria Vendas).
+  const MESES_NOMES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  const [mesVendas, setMesVendas] = useState('todos');
+  const vendasContas = contas.filter((c) => c.tipo === 'receber' && c.categoria === 'Vendas');
+  const mesesVendas = [...new Set(vendasContas.map((c) => String(c.vencimento || '').slice(0, 7)).filter((m) => m.length === 7))].sort().reverse();
+  const vendasFiltrado = vendasContas
+    .filter((c) => mesVendas === 'todos' || String(c.vencimento || '').slice(0, 7) === mesVendas)
+    .reduce((s, c) => s + (Number(c.valor) || 0), 0);
+  const rotuloMes = (ym) => `${MESES_NOMES[Number(ym.split('-')[1]) - 1]}/${ym.split('-')[0]}`;
+
   // Gráfico Receita x Despesa com seletor de período (24h / 7d / 30d).
   // A série é montada a partir das contas (receber/pagar) por dia de vencimento.
   const [periodo, setPeriodo] = useState('7d');
@@ -103,7 +113,23 @@ export default function Dashboard({ irPara }) {
 
       {/* KPIs com contagem animada e cor por desempenho */}
       <div className="grid grid-cols-1 gap-4 stagger sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard icone={ShoppingCart} tom="emerald" label="Vendas" valor={indicadores.vendasTotal} formato={(n) => moeda(n)} />
+        <div className="card-lift group animate-fade-up rounded-2xl border border-line bg-card p-5 shadow-card">
+          <div className="flex items-start justify-between gap-2">
+            <select
+              value={mesVendas}
+              onChange={(e) => setMesVendas(e.target.value)}
+              className="max-w-[130px] rounded-md border border-line bg-card2 px-1.5 py-1 text-xs font-medium text-muted focus:border-accent focus:outline-none"
+            >
+              <option value="todos">Vendas (total)</option>
+              {mesesVendas.map((m) => <option key={m} value={m}>Vendas {rotuloMes(m)}</option>)}
+            </select>
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-pos/15 text-pos transition-transform duration-300 group-hover:scale-110">
+              <ShoppingCart size={19} />
+            </span>
+          </div>
+          <p className="mt-3 text-2xl font-bold tracking-tight text-ink tabular-nums">{moeda(vendasFiltrado)}</p>
+          <p className="mt-2 text-xs text-muted">{mesVendas === 'todos' ? 'Todas as vendas' : rotuloMes(mesVendas)}</p>
+        </div>
         <KpiCard icone={TrendingUp} tom="blue" label="Lucro do mês" valor={lucro} formato={(n) => moeda(n)} variacao={variacao(lucro, mesAnterior.receita - mesAnterior.despesa)} />
         <KpiCard icone={ShoppingBag} tom="amber" label="Compras (Distribuidora Siqueira Bikes)" valor={indicadores.compras} formato={(n) => moeda(n)} />
         <KpiCard icone={Wallet} tom="violet" label="Saldo em caixa" valor={indicadores.saldo} formato={(n) => moeda(n)} />
