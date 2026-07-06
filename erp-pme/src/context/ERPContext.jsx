@@ -595,6 +595,9 @@ export function ERPProvider({ children }) {
     const compras = contas
       .filter((c) => c.tipo === 'pagar' && c.categoria === 'Compras')
       .reduce((s, c) => s + (Number(c.valor) || 0), 0);
+    const vendasTotal = contas
+      .filter((c) => c.tipo === 'receber' && c.categoria === 'Vendas')
+      .reduce((s, c) => s + (Number(c.valor) || 0), 0);
     const comprasQtd = contas.filter(
       (c) => c.tipo === 'pagar' && c.categoria === 'Compras'
     ).length;
@@ -618,6 +621,7 @@ export function ERPProvider({ children }) {
       aPagar,
       compras,
       comprasQtd,
+      vendasTotal,
       valorEstoque,
       estoqueBaixo,
       totalClientes: clientes.filter((c) => c.status === 'ativo').length,
