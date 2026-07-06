@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Pencil, Trash2, CheckCircle2, Barcode, Search } from 'lucide-react';
+import { Plus, Pencil, Trash2, CheckCircle2, Barcode, Search, AlertTriangle } from 'lucide-react';
 import { useERP } from '../context/ERPContext';
 import { moeda, dataBR, situacaoConta, hoje } from '../utils/format';
 import { PageHeader, Card, EmptyState } from '../components/ui/Layout';
@@ -12,7 +12,7 @@ import { Campo, Input } from '../components/ui/Field';
 const vazio = () => ({ descricao: '', beneficiario: '', valor: '', vencimento: hoje(), status: 'pendente' });
 
 export default function Boletos() {
-  const { boletos, salvarBoleto, removerBoleto, somenteLeitura } = useERP();
+  const { boletos, boletosAlerta, salvarBoleto, removerBoleto, somenteLeitura } = useERP();
   const [busca, setBusca] = useState('');
   const [mostrarPagos, setMostrarPagos] = useState(false); // por padrão oculta os pagos
   const [modal, setModal] = useState(null);
@@ -60,6 +60,14 @@ export default function Boletos() {
         descricao="Boletos a pagar — com vencimento e valor total"
         acao={!somenteLeitura && <Button onClick={() => setModal(vazio())}><Plus size={16} /> Novo boleto</Button>}
       />
+
+      {boletosAlerta?.total > 0 && (
+        <div className="mb-4 flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-600">
+          <AlertTriangle size={16} className="animate-pulse-alert" />
+          {boletosAlerta.total} boleto(s) vencendo em até 5 dias
+          {boletosAlerta.vencidos > 0 ? ` — sendo ${boletosAlerta.vencidos} já vencido(s)!` : '.'}
+        </div>
+      )}
 
       <div className="mb-4 grid grid-cols-2 gap-4 lg:grid-cols-3">
         <Card className="p-4"><p className="text-xs font-medium text-muted">Total em boletos</p><p className="mt-1 text-xl font-semibold text-ink">{moeda(total)}</p></Card>

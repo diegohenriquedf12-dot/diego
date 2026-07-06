@@ -16,6 +16,7 @@ import {
   X,
   Sparkles,
 } from 'lucide-react';
+import { useERP } from '../context/ERPContext';
 import { useAuth } from '../context/AuthContext';
 
 // Navegação agrupada — a lista plana `modulos` é derivada para lookup de título
@@ -58,6 +59,7 @@ export const modulos = grupos.flatMap((g) => g.itens);
 
 export default function Sidebar({ ativo, onNavegar, aberto, onFechar }) {
   const { usuario, ehAdmin } = useAuth();
+  const { boletosAlerta } = useERP();
   const iniciais = (usuario?.nome || '?')
     .split(' ')
     .map((n) => n[0])
@@ -104,6 +106,7 @@ export default function Sidebar({ ativo, onNavegar, aberto, onFechar }) {
                 {g.itens.map((m) => {
                   const Icone = m.icone;
                   const selecionado = ativo === m.id;
+                  const alerta = m.id === 'boletos' ? boletosAlerta?.total || 0 : 0;
                   return (
                     <button
                       key={m.id}
@@ -114,8 +117,18 @@ export default function Sidebar({ ativo, onNavegar, aberto, onFechar }) {
                           : 'text-muted hover:bg-card2 hover:text-ink'
                       }`}
                     >
-                      <Icone size={18} className={selecionado ? '' : 'transition-transform group-hover:scale-110'} />
-                      {m.nome}
+                      <span className="relative">
+                        <Icone size={18} className={selecionado ? '' : 'transition-transform group-hover:scale-110'} />
+                        {alerta > 0 && (
+                          <span className="absolute -right-1.5 -top-1.5 h-2 w-2 animate-pulse-alert rounded-full bg-rose-500 ring-2 ring-card" />
+                        )}
+                      </span>
+                      <span className="flex-1 text-left">{m.nome}</span>
+                      {alerta > 0 && (
+                        <span className={`ml-auto grid h-5 min-w-[20px] place-items-center rounded-full px-1.5 text-[11px] font-bold ${selecionado ? 'bg-accent-ink/20 text-accent-ink' : 'bg-rose-500 text-white'}`}>
+                          {alerta}
+                        </span>
+                      )}
                     </button>
                   );
                 })}
