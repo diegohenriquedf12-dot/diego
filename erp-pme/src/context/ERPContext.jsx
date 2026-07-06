@@ -647,6 +647,24 @@ export function ERPProvider({ children }) {
     return { receita: entradas, despesas: saidas, lucro: entradas - saidas, vendas: vendasMes };
   }, [contas, vendas]);
 
+  // Alerta de boletos: pendentes vencendo em até 5 dias ou já vencidos.
+  const boletosAlerta = useMemo(() => {
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const limite = new Date(hoje);
+    limite.setDate(hoje.getDate() + 5);
+    const iso = (d) => d.toISOString().slice(0, 10);
+    const limiteIso = iso(limite);
+    const hojeIso = iso(hoje);
+    const proximos = boletos.filter(
+      (b) => b.status !== 'pago' && b.vencimento && b.vencimento <= limiteIso
+    );
+    return {
+      total: proximos.length,
+      vencidos: proximos.filter((b) => b.vencimento < hojeIso).length,
+    };
+  }, [boletos]);
+
   // "atual" efetivo de uma meta: automático (via fonte) ou o valor manual.
   const atualDaMeta = (m) =>
     m && m.fonte && m.fonte !== 'manual' && metricasMes[m.fonte] != null
@@ -666,6 +684,7 @@ export function ERPProvider({ children }) {
     eventos,
     compras,
     despesasFixas,
+    boletosAlerta,
     indicadores,
     metricasMes,
     atualDaMeta,
