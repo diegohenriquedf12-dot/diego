@@ -18,20 +18,32 @@ const vazia = () => ({
   status: 'pendente',
 });
 
+const MESES_NOMES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+const nomeMes = (ym) => `${MESES_NOMES[Number(ym.split('-')[1]) - 1]} de ${ym.split('-')[0]}`;
+
 export default function Compras() {
   const { compras, salvarCompra, removerCompra, somenteLeitura } = useERP();
   const [busca, setBusca] = useState('');
   const [mostrarPagas, setMostrarPagas] = useState(false); // por padrão oculta as pagas
+  const [mes, setMes] = useState('todos'); // 'todos' ou AAAA-MM
   const [modal, setModal] = useState(null);
 
-  const filtradas = compras.filter(
+  // Meses disponíveis (pela data da compra), do mais recente ao mais antigo
+  const meses = [...new Set(compras.map((c) => String(c.data || '').slice(0, 7)).filter((m) => m.length === 7))]
+    .sort()
+    .reverse();
+
+  const noMes = (c) => mes === 'todos' || String(c.data || '').slice(0, 7) === mes;
+  const doPeriodo = compras.filter(noMes);
+
+  const filtradas = doPeriodo.filter(
     (c) =>
       (mostrarPagas || c.status !== 'pago') &&
       [c.numero, c.fornecedor, c.pagamento].join(' ').toLowerCase().includes(busca.toLowerCase())
   );
 
-  const total = compras.reduce((s, c) => s + (Number(c.valor) || 0), 0);
-  const totalPendente = compras
+  const total = doPeriodo.reduce((s, c) => s + (Number(c.valor) || 0), 0);
+  const totalPendente = doPeriodo
     .filter((c) => c.status !== 'pago')
     .reduce((s, c) => s + (Number(c.valor) || 0), 0);
 
@@ -70,10 +82,23 @@ export default function Compras() {
         acao={!somenteLeitura && <Button onClick={() => setModal(vazia())}><Plus size={16} /> Nova compra</Button>}
       />
 
+      {/* Filtro de período — os cards e a lista refletem o mês selecionado */}
+      <div className="mb-3 flex items-center gap-2">
+        <span className="text-sm font-medium text-muted">Período:</span>
+        <select
+          value={mes}
+          onChange={(e) => setMes(e.target.value)}
+          className="rounded-lg border border-line bg-card2 px-3 py-1.5 text-sm font-medium text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+        >
+          <option value="todos">Total (todos os meses)</option>
+          {meses.map((m) => <option key={m} value={m}>{nomeMes(m)}</option>)}
+        </select>
+      </div>
+
       <div className="mb-4 grid grid-cols-2 gap-4 lg:grid-cols-3">
         <Card className="p-4"><p className="text-xs font-medium text-muted">Total em compras</p><p className="mt-1 text-xl font-semibold text-ink">{moeda(total)}</p></Card>
         <Card className="p-4"><p className="text-xs font-medium text-muted">A pagar</p><p className="mt-1 text-xl font-semibold text-rose-600">{moeda(totalPendente)}</p></Card>
-        <Card className="p-4"><p className="text-xs font-medium text-muted">Quantidade</p><p className="mt-1 text-xl font-semibold text-ink">{compras.length}</p></Card>
+        <Card className="p-4"><p className="text-xs font-medium text-muted">Quantidade</p><p className="mt-1 text-xl font-semibold text-ink">{doPeriodo.length}</p></Card>
       </div>
 
       <Card>
