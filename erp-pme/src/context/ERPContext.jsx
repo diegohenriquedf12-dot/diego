@@ -17,6 +17,9 @@ import {
   comprasSeed,
   contasCompras,
   COMPRAS_IMPORT_FLAG,
+  boletosOggi,
+  contasBoletosOggi,
+  BOLETOS_IMPORT_FLAG,
 } from '../data/seed';
 import { novoId, totalVenda } from '../utils/format';
 import { supabase, supabaseAtivo } from '../lib/supabase';
@@ -174,6 +177,36 @@ export function ERPProvider({ children }) {
 
     try {
       localStorage.setItem(COMPRAS_IMPORT_FLAG, '1');
+    } catch {
+      /* ignora */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Importa os boletos "Oggi" (e suas contas a pagar) uma vez, sobrescrevendo
+  // por id. Roda uma vez por versão da flag.
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(BOLETOS_IMPORT_FLAG)) return;
+    } catch {
+      return;
+    }
+    setBoletos((lista) => {
+      const porId = new Map(lista.map((b) => [b.id, b]));
+      boletosOggi.forEach((b) => porId.set(b.id, { ...b }));
+      return Array.from(porId.values());
+    });
+    boletosOggi.forEach((b) => sincronizar('boletos', b));
+
+    setContas((lista) => {
+      const porId = new Map(lista.map((c) => [c.id, c]));
+      contasBoletosOggi.forEach((c) => porId.set(c.id, { ...c }));
+      return Array.from(porId.values());
+    });
+    contasBoletosOggi.forEach((c) => sincronizar('contas', c));
+
+    try {
+      localStorage.setItem(BOLETOS_IMPORT_FLAG, '1');
     } catch {
       /* ignora */
     }
