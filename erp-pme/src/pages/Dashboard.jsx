@@ -82,12 +82,19 @@ export default function Dashboard({ irPara }) {
     }, {})
   );
 
+  // Despesas por categoria com filtro de mês. Sem o filtro, o total somava
+  // todos os meses juntos (ex.: aluguel lançado em cada mês aparecia
+  // multiplicado). Começa no mês atual.
+  const [mesDespesas, setMesDespesas] = useState(() => new Date().toISOString().slice(0, 7));
+  const contasPagar = contas.filter((c) => c.tipo === 'pagar');
+  const mesesDespesas = [...new Set(contasPagar.map((c) => String(c.vencimento || '').slice(0, 7)).filter((m) => m.length === 7))].sort().reverse();
+  const mesDespesasEfetivo = mesDespesas !== 'todos' && !mesesDespesas.includes(mesDespesas) ? 'todos' : mesDespesas;
   const despesasCat = Object.values(
-    contas
-      .filter((c) => c.tipo === 'pagar')
+    contasPagar
+      .filter((c) => mesDespesasEfetivo === 'todos' || String(c.vencimento || '').slice(0, 7) === mesDespesasEfetivo)
       .reduce((acc, c) => {
         acc[c.categoria] = acc[c.categoria] || { nome: c.categoria, valor: 0 };
-        acc[c.categoria].valor += c.valor;
+        acc[c.categoria].valor += Number(c.valor) || 0;
         return acc;
       }, {})
   );
@@ -189,8 +196,18 @@ export default function Dashboard({ irPara }) {
         </Card>
 
         <Card className="p-5">
-          <h3 className="text-sm font-semibold text-ink">Despesas por categoria</h3>
-          <p className="mb-2 text-xs text-muted">Distribuição atual</p>
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-sm font-semibold text-ink">Despesas por categoria</h3>
+            <select
+              value={mesDespesasEfetivo}
+              onChange={(e) => setMesDespesas(e.target.value)}
+              className="rounded-md border border-line bg-card2 px-1.5 py-1 text-xs font-medium text-muted focus:border-accent focus:outline-none"
+            >
+              <option value="todos">Todos os meses</option>
+              {mesesDespesas.map((m) => <option key={m} value={m}>{rotuloMes(m)}</option>)}
+            </select>
+          </div>
+          <p className="mb-2 text-xs text-muted">{mesDespesasEfetivo === 'todos' ? 'Soma de todos os meses' : `Contas a pagar de ${rotuloMes(mesDespesasEfetivo)}`}</p>
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
               <Pie data={despesasCat} dataKey="valor" nameKey="nome" cx="50%" cy="50%" innerRadius={48} outerRadius={80} paddingAngle={3} animationDuration={900}>
