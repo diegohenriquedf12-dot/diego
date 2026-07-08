@@ -79,3 +79,29 @@ export const contasCompras = comprasSeed.map((c) => ({
 // Importa as compras acima (e suas contas) uma vez para quem já tem dados
 // salvos no navegador/Supabase. Sobrescreve por id (sem duplicar).
 export const COMPRAS_IMPORT_FLAG = 'erp:import:compras-distribuidora-v10';
+
+// Boletos "Oggi" — parcelas com vencimento e valor total.
+export const boletosOggi = [
+  { id: 'bol-oggi-1', descricao: 'Oggi', beneficiario: 'Oggi', valor: 3036.41, vencimento: '2026-07-17', status: 'pendente' },
+  { id: 'bol-oggi-2', descricao: 'Oggi', beneficiario: 'Oggi', valor: 2166.89, vencimento: '2026-08-01', status: 'pendente' },
+  { id: 'bol-oggi-3', descricao: 'Oggi', beneficiario: 'Oggi', valor: 3036.41, vencimento: '2026-08-16', status: 'pendente' },
+  { id: 'bol-oggi-4', descricao: 'Oggi', beneficiario: 'Oggi', valor: 2166.89, vencimento: '2026-08-31', status: 'pendente' },
+  { id: 'bol-oggi-5', descricao: 'Oggi', beneficiario: 'Oggi', valor: 3036.41, vencimento: '2026-09-15', status: 'pendente' },
+  { id: 'bol-oggi-6', descricao: 'Oggi', beneficiario: 'Oggi', valor: 2166.89, vencimento: '2026-09-30', status: 'pendente' },
+  { id: 'bol-oggi-7', descricao: 'Oggi', beneficiario: 'Oggi', valor: 3036.41, vencimento: '2026-10-15', status: 'pendente' },
+  { id: 'bol-oggi-8', descricao: 'Oggi', beneficiario: 'Oggi', valor: 3036.41, vencimento: '2026-11-14', status: 'pendente' },
+];
+
+// Contas a pagar correspondentes (mesmo id) — alimentam o Financeiro.
+export const contasBoletosOggi = boletosOggi.map((b) => ({
+  id: b.id,
+  tipo: 'pagar',
+  descricao: `Boleto — ${b.descricao}`,
+  valor: b.valor,
+  vencimento: b.vencimento,
+  status: b.status === 'pago' ? 'pago' : 'pendente',
+  categoria: 'Boletos',
+}));
+
+// Importa os boletos acima (e suas contas) uma vez. Roda uma vez por versão da flag.
+export const BOLETOS_IMPORT_FLAG = 'erp:import:boletos-oggi-v1';
