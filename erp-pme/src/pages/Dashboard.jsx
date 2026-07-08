@@ -89,12 +89,17 @@ export default function Dashboard({ irPara }) {
   const contasPagar = contas.filter((c) => c.tipo === 'pagar');
   const mesesDespesas = [...new Set(contasPagar.map((c) => String(c.vencimento || '').slice(0, 7)).filter((m) => m.length === 7))].sort().reverse();
   const mesDespesasEfetivo = mesDespesas !== 'todos' && !mesesDespesas.includes(mesDespesas) ? 'todos' : mesDespesas;
+  // Agrupa ignorando maiúsculas/minúsculas e espaços extras, para que
+  // "Compras", "compras" e "Compras " virem uma categoria só no gráfico.
   const despesasCat = Object.values(
     contasPagar
       .filter((c) => mesDespesasEfetivo === 'todos' || String(c.vencimento || '').slice(0, 7) === mesDespesasEfetivo)
       .reduce((acc, c) => {
-        acc[c.categoria] = acc[c.categoria] || { nome: c.categoria, valor: 0 };
-        acc[c.categoria].valor += Number(c.valor) || 0;
+        const bruto = String(c.categoria || 'Outros').trim() || 'Outros';
+        const chave = bruto.toLowerCase();
+        const nome = bruto.charAt(0).toUpperCase() + bruto.slice(1);
+        acc[chave] = acc[chave] || { nome, valor: 0 };
+        acc[chave].valor += Number(c.valor) || 0;
         return acc;
       }, {})
   );

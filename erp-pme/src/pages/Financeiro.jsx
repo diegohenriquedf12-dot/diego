@@ -46,7 +46,7 @@ export default function Financeiro() {
 
   const salvar = () => {
     if (!modal.descricao.trim()) return;
-    salvarConta({ ...modal, valor: Number(modal.valor) || 0 });
+    salvarConta({ ...modal, valor: Number(modal.valor) || 0, categoria: String(modal.categoria || '').trim() || 'Outros' });
     setModal(null);
   };
 
