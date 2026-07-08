@@ -15,15 +15,29 @@ const manualVazia = () => ({ clienteNome: '', valor: '', data: hoje(), status: '
 export default function Vendas() {
   const { vendas, clientes, produtos, salvarVenda, removerVenda, somenteLeitura } = useERP();
   const [busca, setBusca] = useState('');
+  const [clienteFiltro, setClienteFiltro] = useState('todos'); // 'todos' ou nome do cliente
   const [modal, setModal] = useState(null);
   const [modalManual, setModalManual] = useState(null);
   const [confirmar, setConfirmar] = useState(null);
   const [produtoSel, setProdutoSel] = useState('');
 
+  const nomeCliente = (v) => clientes.find((c) => c.id === v.clienteId)?.nome || v.clienteNome || '—';
+
+  // Clientes que já compraram (para o filtro), em ordem alfabética
+  const clientesQueCompraram = [...new Set(vendas.map(nomeCliente).filter((n) => n !== '—'))]
+    .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
   const filtradas = vendas.filter((v) => {
-    const cliente = clientes.find((c) => c.id === v.clienteId);
-    return (cliente?.nome || '').toLowerCase().includes(busca.toLowerCase()) || v.id.includes(busca);
+    const nome = nomeCliente(v);
+    return (
+      (clienteFiltro === 'todos' || nome === clienteFiltro) &&
+      (nome.toLowerCase().includes(busca.toLowerCase()) || v.id.includes(busca))
+    );
   });
+
+  // Totais do filtro atual (ignora vendas canceladas)
+  const validasFiltradas = filtradas.filter((v) => v.status !== 'cancelado');
+  const totalFiltrado = validasFiltradas.reduce((s, v) => s + totalVenda(v), 0);
 
   const adicionarItem = () => {
     if (!produtoSel) return;
@@ -104,12 +118,36 @@ export default function Vendas() {
         )}
       />
 
+      {/* Totais do filtro atual — atualizam conforme o cliente selecionado */}
+      <div className="mb-4 grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <Card className="p-4">
+          <p className="text-xs font-medium text-muted">Valor total{clienteFiltro !== 'todos' ? ` — ${clienteFiltro}` : ''}</p>
+          <p className="mt-1 text-xl font-semibold text-emerald-600">{moeda(totalFiltrado)}</p>
+        </Card>
+        <Card className="p-4">
+          <p className="text-xs font-medium text-muted">Vendas</p>
+          <p className="mt-1 text-xl font-semibold text-ink">{validasFiltradas.length}</p>
+        </Card>
+        <Card className="p-4">
+          <p className="text-xs font-medium text-muted">Clientes que compraram</p>
+          <p className="mt-1 text-xl font-semibold text-ink">{clientesQueCompraram.length}</p>
+        </Card>
+      </div>
+
       <Card>
-        <div className="border-b border-line p-4">
-          <div className="relative max-w-sm">
+        <div className="flex flex-wrap items-center gap-3 border-b border-line p-4">
+          <div className="relative max-w-sm flex-1">
             <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
             <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar por cliente ou nº do pedido..." className="w-full rounded-lg border border-line bg-card2 py-2 pl-9 pr-3 text-sm focus:border-accent focus:bg-card focus:outline-none focus:ring-2 focus:ring-accent/25" />
           </div>
+          <select
+            value={clienteFiltro}
+            onChange={(e) => setClienteFiltro(e.target.value)}
+            className="shrink-0 rounded-lg border border-line bg-card2 px-3 py-2 text-sm font-medium text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+          >
+            <option value="todos">Todos os clientes</option>
+            {clientesQueCompraram.map((n) => <option key={n} value={n}>{n}</option>)}
+          </select>
         </div>
         <DataTable colunas={colunas} dados={filtradas} vazio={<EmptyState icone={ShoppingCart} titulo="Nenhuma venda registrada" descricao="Registre vendas para acompanhar faturamento e baixar o estoque automaticamente." />} />
       </Card>
