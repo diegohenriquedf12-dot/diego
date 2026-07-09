@@ -108,4 +108,4 @@ export const BOLETOS_IMPORT_FLAG = 'erp:import:boletos-oggi-v1';
 
 // Remove lançamentos duplicados no Financeiro (mesma descrição, valor e mês)
 // e despesas fixas cadastradas em dobro. Roda uma vez por versão da flag.
-export const DEDUPE_FLAG = 'erp:cleanup:dedupe-v1';
+export const DEDUPE_FLAG = 'erp:cleanup:dedupe-v2';

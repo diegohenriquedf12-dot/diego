@@ -28,6 +28,44 @@ import { useAuth } from './AuthContext';
 
 const ERPContext = createContext(null);
 
+// ---- Deduplicação (compartilhada pela carga do Supabase e limpeza local) ----
+// Uma conta é "duplicada" quando tem mesmo tipo, descrição, valor e mês de
+// vencimento. O sufixo "(fixa)" é ignorado para casar a conta gerada por uma
+// despesa fixa com um lançamento manual equivalente (ex.: Aluguel).
+const normDesc = (s) =>
+  String(s || '').toLowerCase().replace(/\s*\(fixa\)\s*$/, '').replace(/\s+/g, ' ').trim();
+const chaveConta = (c) =>
+  `${c.tipo}|${normDesc(c.descricao)}|${Number(c.valor) || 0}|${String(c.vencimento || '').slice(0, 7)}`;
+// Ao remover, preferimos manter a conta vinculada (df/sal/cmp/bol) e descartar a avulsa.
+const prioridadeConta = (id) => (/^(df|sal|cmp|bol)/.test(String(id)) ? 0 : 1);
+
+function dedupContas(lista) {
+  const grupos = new Map();
+  lista.forEach((c) => {
+    const k = chaveConta(c);
+    if (!grupos.has(k)) grupos.set(k, []);
+    grupos.get(k).push(c);
+  });
+  const removidos = new Set();
+  grupos.forEach((g) => {
+    if (g.length < 2) return;
+    g.sort((a, b) => prioridadeConta(a.id) - prioridadeConta(b.id));
+    g.slice(1).forEach((c) => removidos.add(c.id));
+  });
+  return { limpa: lista.filter((c) => !removidos.has(c.id)), removidos: [...removidos] };
+}
+
+function dedupFixas(lista) {
+  const vistas = new Map();
+  const removidos = new Set();
+  lista.forEach((f) => {
+    const k = `${normDesc(f.descricao)}|${Number(f.valor) || 0}`;
+    if (vistas.has(k)) removidos.add(f.id);
+    else vistas.set(k, f.id);
+  });
+  return { limpa: lista.filter((f) => !removidos.has(f.id)), removidos: [...removidos] };
+}
+
 // Estado em cache no navegador (localStorage) — também é o fallback quando
 // não há back-end (Supabase) configurado.
 function useColecaoPersistida(chave, inicial) {
@@ -104,7 +142,8 @@ export function ERPProvider({ children }) {
       boletos: setBoletos,
     };
     (async () => {
-      for (const [tabela, set] of Object.entries(setters)) {
+      const carregado = {};
+      for (const tabela of Object.keys(setters)) {
         try {
           const { data, error } = await supabase
             .from(tabela)
@@ -114,10 +153,44 @@ export function ERPProvider({ children }) {
             console.warn(`Supabase load ${tabela}:`, error.message);
             continue;
           }
-          if (data) set(data.map((r) => ({ id: r.id, ...r.dados })));
+          if (data) carregado[tabela] = data.map((r) => ({ id: r.id, ...r.dados }));
         } catch (e) {
           console.warn(`Supabase load ${tabela}:`, e?.message || e);
         }
+      }
+
+      // Remove duplicatas vindas do back-end (o cache local já era deduplicado,
+      // mas os dados do Supabase podem conter cópias antigas). Reflete a remoção
+      // de volta no Supabase para não voltarem no próximo carregamento.
+      let fixasRemovidas = [];
+      if (carregado.despesasfixas) {
+        const { limpa, removidos } = dedupFixas(carregado.despesasfixas);
+        carregado.despesasfixas = limpa;
+        fixasRemovidas = removidos;
+        removidos.forEach((id) => removerRemoto('despesasfixas', id));
+      }
+      if (carregado.contas) {
+        let lista = carregado.contas;
+        // contas órfãs geradas por despesas fixas que foram removidas
+        if (fixasRemovidas.length) {
+          const orfas = new Set();
+          fixasRemovidas.forEach((fid) =>
+            lista.forEach((c) => {
+              if (typeof c.id === 'string' && c.id.startsWith(`df${fid}-`)) orfas.add(c.id);
+            })
+          );
+          if (orfas.size) {
+            lista = lista.filter((c) => !orfas.has(c.id));
+            orfas.forEach((id) => removerRemoto('contas', id));
+          }
+        }
+        const { limpa, removidos } = dedupContas(lista);
+        carregado.contas = limpa;
+        removidos.forEach((id) => removerRemoto('contas', id));
+      }
+
+      for (const [tabela, set] of Object.entries(setters)) {
+        if (carregado[tabela]) set(carregado[tabela]);
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -224,46 +297,27 @@ export function ERPProvider({ children }) {
     } catch {
       return;
     }
-    const norm = (s) =>
-      String(s || '').toLowerCase().replace(/\s*\(fixa\)\s*$/, '').replace(/\s+/g, ' ').trim();
-
     // 1) despesas fixas em dobro
-    const vistasFx = new Map();
-    const fxDuplicadas = [];
-    despesasFixas.forEach((f) => {
-      const chave = `${norm(f.descricao)}|${Number(f.valor) || 0}`;
-      if (vistasFx.has(chave)) fxDuplicadas.push(f.id);
-      else vistasFx.set(chave, f.id);
-    });
-    if (fxDuplicadas.length) {
-      setDespesasFixas((lista) => lista.filter((f) => !fxDuplicadas.includes(f.id)));
-      fxDuplicadas.forEach((id) => removerRemoto('despesasfixas', id));
+    const fx = dedupFixas(despesasFixas);
+    if (fx.removidos.length) {
+      setDespesasFixas(fx.limpa);
+      fx.removidos.forEach((id) => removerRemoto('despesasfixas', id));
     }
 
-    // 2) contas repetidas no Financeiro
-    const remover = new Set();
-    // contas geradas pelas despesas fixas duplicadas saem junto
-    fxDuplicadas.forEach((fid) =>
+    // 2) contas repetidas no Financeiro (inclui órfãs das fixas removidas)
+    const orfas = new Set();
+    fx.removidos.forEach((fid) =>
       contas.forEach((c) => {
-        if (typeof c.id === 'string' && c.id.startsWith(`df${fid}-`)) remover.add(c.id);
+        if (typeof c.id === 'string' && c.id.startsWith(`df${fid}-`)) orfas.add(c.id);
       })
     );
-    const prioridade = (id) => (/^(df|sal|cmp|bol)/.test(String(id)) ? 0 : 1);
-    const grupos = new Map();
-    contas.forEach((c) => {
-      const chave = `${c.tipo}|${norm(c.descricao)}|${Number(c.valor) || 0}|${String(c.vencimento || '').slice(0, 7)}`;
-      if (!grupos.has(chave)) grupos.set(chave, []);
-      grupos.get(chave).push(c);
-    });
-    grupos.forEach((lista) => {
-      if (lista.length < 2) return;
-      const vivas = lista.filter((c) => !remover.has(c.id));
-      vivas.sort((a, b) => prioridade(a.id) - prioridade(b.id));
-      vivas.slice(1).forEach((c) => remover.add(c.id));
-    });
-    if (remover.size) {
-      setContas((lista) => lista.filter((c) => !remover.has(c.id)));
-      remover.forEach((id) => removerRemoto('contas', id));
+    const semOrfas = contas.filter((c) => !orfas.has(c.id));
+    const ct = dedupContas(semOrfas);
+    const removerContas = [...orfas, ...ct.removidos];
+    if (removerContas.length) {
+      const rem = new Set(removerContas);
+      setContas((lista) => lista.filter((c) => !rem.has(c.id)));
+      removerContas.forEach((id) => removerRemoto('contas', id));
     }
 
     try {
