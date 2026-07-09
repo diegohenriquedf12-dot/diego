@@ -20,6 +20,7 @@ import {
   boletosOggi,
   contasBoletosOggi,
   BOLETOS_IMPORT_FLAG,
+  DEDUPE_FLAG,
 } from '../data/seed';
 import { novoId, totalVenda } from '../utils/format';
 import { supabase, supabaseAtivo } from '../lib/supabase';
@@ -207,6 +208,66 @@ export function ERPProvider({ children }) {
 
     try {
       localStorage.setItem(BOLETOS_IMPORT_FLAG, '1');
+    } catch {
+      /* ignora */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Limpeza única de DUPLICATAS (roda uma vez por versão da flag):
+  //  1) despesas fixas cadastradas em dobro (mesma descrição e valor);
+  //  2) contas do Financeiro repetidas (mesmo tipo, descrição, valor e mês)
+  //     — mantém uma, de preferência a vinculada à despesa fixa/compra/boleto.
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(DEDUPE_FLAG)) return;
+    } catch {
+      return;
+    }
+    const norm = (s) =>
+      String(s || '').toLowerCase().replace(/\s*\(fixa\)\s*$/, '').replace(/\s+/g, ' ').trim();
+
+    // 1) despesas fixas em dobro
+    const vistasFx = new Map();
+    const fxDuplicadas = [];
+    despesasFixas.forEach((f) => {
+      const chave = `${norm(f.descricao)}|${Number(f.valor) || 0}`;
+      if (vistasFx.has(chave)) fxDuplicadas.push(f.id);
+      else vistasFx.set(chave, f.id);
+    });
+    if (fxDuplicadas.length) {
+      setDespesasFixas((lista) => lista.filter((f) => !fxDuplicadas.includes(f.id)));
+      fxDuplicadas.forEach((id) => removerRemoto('despesasfixas', id));
+    }
+
+    // 2) contas repetidas no Financeiro
+    const remover = new Set();
+    // contas geradas pelas despesas fixas duplicadas saem junto
+    fxDuplicadas.forEach((fid) =>
+      contas.forEach((c) => {
+        if (typeof c.id === 'string' && c.id.startsWith(`df${fid}-`)) remover.add(c.id);
+      })
+    );
+    const prioridade = (id) => (/^(df|sal|cmp|bol)/.test(String(id)) ? 0 : 1);
+    const grupos = new Map();
+    contas.forEach((c) => {
+      const chave = `${c.tipo}|${norm(c.descricao)}|${Number(c.valor) || 0}|${String(c.vencimento || '').slice(0, 7)}`;
+      if (!grupos.has(chave)) grupos.set(chave, []);
+      grupos.get(chave).push(c);
+    });
+    grupos.forEach((lista) => {
+      if (lista.length < 2) return;
+      const vivas = lista.filter((c) => !remover.has(c.id));
+      vivas.sort((a, b) => prioridade(a.id) - prioridade(b.id));
+      vivas.slice(1).forEach((c) => remover.add(c.id));
+    });
+    if (remover.size) {
+      setContas((lista) => lista.filter((c) => !remover.has(c.id)));
+      remover.forEach((id) => removerRemoto('contas', id));
+    }
+
+    try {
+      localStorage.setItem(DEDUPE_FLAG, '1');
     } catch {
       /* ignora */
     }
