@@ -26,6 +26,8 @@ export default function Compras() {
   const [busca, setBusca] = useState('');
   const [mostrarPagas, setMostrarPagas] = useState(false); // por padrão oculta as pagas
   const [mes, setMes] = useState('todos'); // 'todos' ou AAAA-MM
+  const [de, setDe] = useState(''); // data inicial (AAAA-MM-DD)
+  const [ate, setAte] = useState(''); // data final (AAAA-MM-DD)
   const [modal, setModal] = useState(null);
 
   // Meses disponíveis (pela data da compra), do mais recente ao mais antigo
@@ -34,7 +36,11 @@ export default function Compras() {
     .reverse();
 
   const noMes = (c) => mes === 'todos' || String(c.data || '').slice(0, 7) === mes;
-  const doPeriodo = compras.filter(noMes);
+  const noIntervalo = (c) => {
+    const d = String(c.data || '');
+    return (!de || d >= de) && (!ate || d <= ate);
+  };
+  const doPeriodo = compras.filter((c) => noMes(c) && noIntervalo(c));
 
   const filtradas = doPeriodo.filter(
     (c) =>
@@ -82,17 +88,28 @@ export default function Compras() {
         acao={!somenteLeitura && <Button onClick={() => setModal(vazia())}><Plus size={16} /> Nova compra</Button>}
       />
 
-      {/* Filtro de período — os cards e a lista refletem o mês selecionado */}
-      <div className="mb-3 flex items-center gap-2">
-        <span className="text-sm font-medium text-muted">Período:</span>
-        <select
-          value={mes}
-          onChange={(e) => setMes(e.target.value)}
-          className="rounded-lg border border-line bg-card2 px-3 py-1.5 text-sm font-medium text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
-        >
-          <option value="todos">Total (todos os meses)</option>
-          {meses.map((m) => <option key={m} value={m}>{nomeMes(m)}</option>)}
-        </select>
+      {/* Filtros de período — os cards e a lista refletem o que for selecionado */}
+      <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-muted">Mês:</span>
+          <select
+            value={mes}
+            onChange={(e) => setMes(e.target.value)}
+            className="rounded-lg border border-line bg-card2 px-3 py-1.5 text-sm font-medium text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+          >
+            <option value="todos">Total (todos os meses)</option>
+            {meses.map((m) => <option key={m} value={m}>{nomeMes(m)}</option>)}
+          </select>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-muted">De:</span>
+          <input type="date" value={de} onChange={(e) => setDe(e.target.value)} className="rounded-lg border border-line bg-card2 px-2 py-1.5 text-sm text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25" />
+          <span className="text-sm font-medium text-muted">até:</span>
+          <input type="date" value={ate} onChange={(e) => setAte(e.target.value)} className="rounded-lg border border-line bg-card2 px-2 py-1.5 text-sm text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25" />
+          {(de || ate) && (
+            <button onClick={() => { setDe(''); setAte(''); }} className="rounded-lg border border-line px-2 py-1.5 text-xs font-medium text-muted hover:bg-card2">Limpar</button>
+          )}
+        </div>
       </div>
 
       <div className="mb-4 grid grid-cols-2 gap-4 lg:grid-cols-3">

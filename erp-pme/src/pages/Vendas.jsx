@@ -16,6 +16,8 @@ export default function Vendas() {
   const { vendas, clientes, produtos, salvarVenda, removerVenda, somenteLeitura } = useERP();
   const [busca, setBusca] = useState('');
   const [clienteFiltro, setClienteFiltro] = useState('todos'); // 'todos' ou nome do cliente
+  const [de, setDe] = useState(''); // data inicial (AAAA-MM-DD)
+  const [ate, setAte] = useState(''); // data final (AAAA-MM-DD)
   const [modal, setModal] = useState(null);
   const [modalManual, setModalManual] = useState(null);
   const [confirmar, setConfirmar] = useState(null);
@@ -29,8 +31,11 @@ export default function Vendas() {
 
   const filtradas = vendas.filter((v) => {
     const nome = nomeCliente(v);
+    const d = String(v.data || '');
     return (
       (clienteFiltro === 'todos' || nome === clienteFiltro) &&
+      (!de || d >= de) &&
+      (!ate || d <= ate) &&
       (nome.toLowerCase().includes(busca.toLowerCase()) || v.id.includes(busca))
     );
   });
@@ -148,6 +153,15 @@ export default function Vendas() {
             <option value="todos">Todos os clientes</option>
             {clientesQueCompraram.map((n) => <option key={n} value={n}>{n}</option>)}
           </select>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-muted">De:</span>
+            <input type="date" value={de} onChange={(e) => setDe(e.target.value)} className="rounded-lg border border-line bg-card2 px-2 py-2 text-sm text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25" />
+            <span className="text-sm font-medium text-muted">até:</span>
+            <input type="date" value={ate} onChange={(e) => setAte(e.target.value)} className="rounded-lg border border-line bg-card2 px-2 py-2 text-sm text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25" />
+            {(de || ate) && (
+              <button onClick={() => { setDe(''); setAte(''); }} className="rounded-lg border border-line px-2 py-2 text-xs font-medium text-muted hover:bg-card2">Limpar</button>
+            )}
+          </div>
         </div>
         <DataTable colunas={colunas} dados={filtradas} vazio={<EmptyState icone={ShoppingCart} titulo="Nenhuma venda registrada" descricao="Registre vendas para acompanhar faturamento e baixar o estoque automaticamente." />} />
       </Card>

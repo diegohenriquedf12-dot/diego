@@ -11,7 +11,12 @@ export const dataBR = (iso) => {
   return `${d}/${m}/${a}`;
 };
 
-export const hoje = () => new Date().toISOString().slice(0, 10);
+// Data de hoje (AAAA-MM-DD) no fuso LOCAL. Usar toISOString() aqui causava
+// erro de "+1 dia" à noite no Brasil (UTC-3), pois converte para UTC.
+export const hoje = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
 
 export const totalVenda = (venda) => {
   const itens = venda.itens || [];
